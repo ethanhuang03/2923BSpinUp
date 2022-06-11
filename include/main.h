@@ -39,7 +39,8 @@
 /**
  * You should add more #includes here
  */
-//#include "okapi/api.hpp"
+#include "okapi/api.hpp"
+#include "ARMS/api.h"
 //#include "pros/api_legacy.h"
 
 /**
@@ -53,6 +54,7 @@
 // using namespace pros;
 // using namespace pros::literals;
 // using namespace okapi;
+using namespace arms;
 
 /**
  * Prototypes for the competition control tasks are redefined here to ensure
