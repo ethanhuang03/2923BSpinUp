@@ -19,7 +19,7 @@ void autonomous() {}
 
 void opcontrol() {
 	while(true) {
-		chassis::arcade(master.getAnalog(okapi::ControllerAnalog::leftY)*100, partner.getAnalog(okapi::ControllerAnalog::rightY)*100);
+		chassis::tank(master.getAnalog(okapi::ControllerAnalog::leftY)*100, master.getAnalog(okapi::ControllerAnalog::rightY)*100);
 		pros::delay(10);
 	}
 }
