@@ -1,3 +1,10 @@
+UPDATING ARMS LIBRARY
+/*
+* Make a PULL REQUEST
+* Manually move files into src/ARMS and include/ARMS to make sure some files are not overwritten
+*/
+
+
 INITIALIZE
 /**
  * Runs initialization code. This occurs as soon as the program is started.
