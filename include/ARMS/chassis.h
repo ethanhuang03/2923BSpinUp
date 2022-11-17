@@ -66,6 +66,11 @@ void turn(Point target, double max, MoveFlags = NONE);
 void turn(Point target, MoveFlags = NONE);
 
 /**
+ * Move Motors
+ */
+void motorMove(std::shared_ptr<pros::Motor_Group> motor, double speed, bool velocity);
+
+/**
  * Assign a power to the left and right motors
  */
 void tank(double left, double right, bool velocity = false);

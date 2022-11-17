@@ -12,7 +12,9 @@ namespace arms {
 // Negative numbers mean reversed motor
 #define LEFT_MOTORS 1, 2
 #define RIGHT_MOTORS -3, -4
-#define GEARSET pros::E_MOTOR_GEAR_200 // RPM of chassis motors
+#define GEARSET pros::E_MOTOR_GEAR_600 // RPM of chassis motors
+#define GEARRATIO 60/36 // Gear ratio of chassis motors
+#define WHEELRADIUS 2.75 // Radius of chassis wheels in inches
 
 // Ticks per inch
 #define TPI 1      			  // Encoder ticks per inch of forward robot movement
