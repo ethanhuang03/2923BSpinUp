@@ -122,7 +122,7 @@ int odomTask() {
 		position.y += cos(p) * local_y + sin(p) * local_x;
 
 		if (debug)
-			printf("%.2f, %.2f, %.2f \n", position.x, position.y, getHeading());
+			printf("Odom(%.2f, %.2f, %.2f) \n", position.x, position.y, getHeading());
 
 		pros::delay(10);
 	}
