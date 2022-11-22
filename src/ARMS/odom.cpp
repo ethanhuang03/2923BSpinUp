@@ -91,7 +91,8 @@ int odomTask() {
 			heading = -imu->get_rotation() * M_PI / 180.0;
 			delta_angle = heading - prev_heading;
 		} else {
-			delta_angle = (delta_left - delta_right) / track_width;
+			delta_angle = (delta_right - delta_left) / track_width;
+			// delta_angle = (delta_left - delta_right) / track_width; // One of theses
 
 			heading += delta_angle;
 		}
@@ -260,9 +261,10 @@ void init(bool debug, EncoderType_e_t encoderType,
 	// initialize imu
 	if (imuPort != 0) {
 		imu = std::make_shared<pros::Imu>(imuPort);
-		imu->reset(true);
-		while (imu->is_calibrating())
-			pros::delay(5);
+		int rtn = imu->reset(true);
+		if (rtn != 1) {
+			printf("ARMS ERROR: IMU reset failed with error code %d", errno);
+		}
 	}
 	pros::delay(100);
 	reset();
