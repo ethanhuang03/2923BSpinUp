@@ -4,6 +4,21 @@
 #include <unordered_map>
 
 
+double inps2rpm(double inps) { // wheel radius in inches
+    return (inps * 60 / (2 * M_PI * WHEELRADIUS))/GEARRATIO;
+}
+
+
+double m2in(double m) {
+    return m * 39.37;
+}
+
+
+double in2m(double in) {
+    return in / 39.37;
+}
+
+
 class RamseteController {
     public:
         typedef struct {
@@ -69,7 +84,6 @@ class PathFollower {
         void createPath(std::string constraint_name, std::string path_name, std::vector<std::vector<double>> waypoints);
         void followPath(std::string path_name);
         void followPathRamsete(std::string path_name);
-        double InS2RPM(double mps);
         PathFollower(double robot_width) {            
             robot_width = robot_width;
         }
@@ -77,10 +91,6 @@ class PathFollower {
         std::unordered_map<std::string, std::vector<squiggles::ProfilePoint>> paths;
         std::unordered_map<std::string, std::vector<double>> constraints;
 };
-
-double PathFollower::InS2RPM(double mps) { // wheel radius in inches
-    return (mps * 60 / (2 * M_PI * WHEELRADIUS))/GEARRATIO;
-}
 
 void PathFollower::createConstraints(std::string constraint_name, double max_vel, double max_acc, double max_jerk) {
     constraints[constraint_name] = {max_vel, max_acc, max_jerk};
@@ -93,7 +103,7 @@ void PathFollower::createPath(std::string constraint_name, std::string path_name
     squiggles::SplineGenerator generator = squiggles::SplineGenerator(squiggles_constraints, std::make_shared<squiggles::TankModel>(robot_width, constraints));
     std::vector<squiggles::Pose> points;
     for (int i = 0; i < points.size(); i++) {
-        points.push_back(squiggles::Pose(waypoints[i][0]/39.37, waypoints[i][1]/39.37, waypoints[i][2]*M_PI/180)); // convert in to m, deg to rad
+        points.push_back(squiggles::Pose(in2m(waypoints[i][0]), in2m(waypoints[i][1]), waypoints[i][2]*M_PI/180)); // convert in to m, deg to rad
     }
     paths[path_name] = generator.generate(points); // returns meters, meters, radians
 }
@@ -102,8 +112,8 @@ void PathFollower::followPath(std::string path_name) {
     std::vector<squiggles::ProfilePoint> path = paths[path_name];
     std::size_t pathSize = path.size();
     for (std::size_t i = 0; i < pathSize; ++i) {
-        auto leftRPM = InS2RPM(path[i].wheel_velocities[0]*39.37);
-        auto rightRPM = InS2RPM(path[i].wheel_velocities[1]*39.37);
+        auto leftRPM = inps2rpm(m2in(path[i].wheel_velocities[0]));
+        auto rightRPM = inps2rpm(m2in(path[i].wheel_velocities[1]));
 
         arms::chassis::motorMove(arms::chassis::leftMotors, leftRPM, true);
         arms::chassis::motorMove(arms::chassis::rightMotors, rightRPM, true);
@@ -123,12 +133,12 @@ void PathFollower::followPathRamsete(std::string path_name) {
 
     std::size_t pathSize = path.size();
     for (std::size_t i = 0; i < pathSize; ++i) {
-        auto x = path[i].vector.pose.x * 39.37; 
-        auto y = path[i].vector.pose.y * 39.37;
+        auto x = m2in(path[i].vector.pose.x); 
+        auto y = m2in(path[i].vector.pose.y);
         auto theta = path[i].vector.pose.yaw;
-        auto vel = path[i].vector.vel * 39.37;
-        // angular velocity in rad/s from left wheel velocity and right wheel velocity in m/s 
-        auto omega = path[i].vector.vel * path[i].curvature * 39.37;
+        auto vel = m2in(path[i].vector.vel);
+
+        auto omega = vel / m2in(1/path[i].curvature);
 
         controller.setTarget(x, y, theta, vel, omega);
 
@@ -141,8 +151,8 @@ void PathFollower::followPathRamsete(std::string path_name) {
                 auto output = controller.step(arms::odom::getPosition(), arms::odom::getHeading(true));
 
                 auto linearMotorVelocity = output.linVel/(2*M_PI*WHEELRADIUS);
-                auto leftRPM = InS2RPM(linearMotorVelocity + output.angVel);
-                auto rightRPM = InS2RPM(linearMotorVelocity - output.angVel);
+                auto leftRPM = inps2rpm(linearMotorVelocity + output.angVel);
+                auto rightRPM = inps2rpm(linearMotorVelocity - output.angVel);
 
                 arms::chassis::motorMove(arms::chassis::leftMotors, leftRPM, true);
                 arms::chassis::motorMove(arms::chassis::rightMotors, rightRPM, true);
