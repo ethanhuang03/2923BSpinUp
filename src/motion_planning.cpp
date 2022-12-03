@@ -140,9 +140,9 @@ void PathFollower::followPathRamsete(std::string path_name) {
 
         auto omega = vel / m2in(1/path[i].curvature);
 
-        controller.setTarget(x, y, theta, vel, omega);
-
         if (i < pathSize - 1) {
+            controller.setTarget(x, y, theta, vel, omega);
+            
             double delay = path[i+1].time - path[i].time;
             auto start = std::chrono::system_clock::now();
 
