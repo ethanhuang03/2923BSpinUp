@@ -5,7 +5,7 @@
 
 
 double inps2rpm(double inps) { // wheel radius in inches
-    return (inps * 60 / (M_PI * WHEELDIAMETER))/GEARRATIO;
+    return (inps * 60 / (M_PI * WHEELDIAMETER))*GEARRATIO;
 }
 
 
@@ -111,12 +111,12 @@ void PathFollower::createPath(std::string constraint_name, std::string path_name
 void PathFollower::followPath(std::string path_name) {
     std::vector<squiggles::ProfilePoint> path = paths[path_name];
     std::size_t pathSize = path.size();
-    for (std::size_t i = 0; i < pathSize; ++i) {
+    for (std::size_t i = 0; i < pathSize; i++) {  // used to be ++i
         auto leftRPM = inps2rpm(m2in(path[i].wheel_velocities[0]));
         auto rightRPM = inps2rpm(m2in(path[i].wheel_velocities[1]));
 
-        arms::chassis::motorMove(arms::chassis::leftMotors, leftRPM, true);
-        arms::chassis::motorMove(arms::chassis::rightMotors, rightRPM, true);
+		arms::chassis::leftMotors->move_velocity(leftRPM);
+		arms::chassis::rightMotors->move_velocity(rightRPM);
         
         if (i < pathSize - 1) {
             double delay = path[i+1].time - path[i].time;
@@ -132,7 +132,7 @@ void PathFollower::followPathRamsete(std::string path_name) {
     controller.setGains(0.7, 0.7);
 
     std::size_t pathSize = path.size();
-    for (std::size_t i = 0; i < pathSize; ++i) {
+    for (std::size_t i = 0; i < pathSize; i++) {
         auto x = m2in(path[i].vector.pose.x); 
         auto y = m2in(path[i].vector.pose.y);
         auto theta = path[i].vector.pose.yaw;
@@ -154,8 +154,8 @@ void PathFollower::followPathRamsete(std::string path_name) {
                 auto leftRPM = inps2rpm(linearMotorVelocity + output.angVel);
                 auto rightRPM = inps2rpm(linearMotorVelocity - output.angVel);
 
-                arms::chassis::motorMove(arms::chassis::leftMotors, leftRPM, true);
-                arms::chassis::motorMove(arms::chassis::rightMotors, rightRPM, true);
+				arms::chassis::leftMotors->move_velocity(leftRPM);
+				arms::chassis::rightMotors->move_velocity(rightRPM);
             }
         }
     }
