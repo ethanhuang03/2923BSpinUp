@@ -92,6 +92,7 @@ class PathFollower {
         std::unordered_map<std::string, std::vector<double>> constraints;
 };
 
+// Constrains in SI Units
 void PathFollower::createConstraints(std::string constraint_name, double max_vel, double max_acc, double max_jerk) {
     constraints[constraint_name] = {max_vel, max_acc, max_jerk};
 }
@@ -102,7 +103,7 @@ void PathFollower::createPath(std::string constraint_name, std::string path_name
     squiggles::Constraints squiggles_constraints = squiggles::Constraints(constraint[0], constraint[1], constraint[2]);
     squiggles::SplineGenerator generator = squiggles::SplineGenerator(squiggles_constraints, std::make_shared<squiggles::TankModel>(robot_width, constraints));
     std::vector<squiggles::Pose> points;
-    for (int i = 0; i < points.size(); i++) {
+    for (int i = 0; i < waypoints.size(); i++) {
         points.push_back(squiggles::Pose(in2m(waypoints[i][0]), in2m(waypoints[i][1]), waypoints[i][2]*M_PI/180)); // convert in to m, deg to rad
     }
     paths[path_name] = generator.generate(points); // returns meters, meters, radians
