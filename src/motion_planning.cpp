@@ -42,7 +42,7 @@ void RamseteController::setTarget(double x, double y, double itheta, double ivel
     // NEED TO Convert To Right Units
     desX = x; // in inch
     desY = y; // in inch
-    desT = itheta * M_PI/180; // in rad
+    desT = itheta; // in rad
     velDes = ivel; 
     omegaDes = iomega; 
 }
@@ -52,8 +52,8 @@ RamseteController::output RamseteController::step(arms::Point point, double ithe
     // Easier to just do the conversion to ROS coordinates here
     double ey = desX - point.x; 
     double ex = desY - point.y; 
-    double et = desT - itheta * M_PI/180; // in rad
-    double ct = M_PI / 2 - itheta * M_PI/180; // in rad
+    double et = desT - itheta; // in rad
+    double ct = M_PI / 2 - itheta; // in rad
     ex = cos(-ct) * ex - sin(-ct) * ey;
     ey = sin(-ct) * ex + cos(-ct) * ey;
 
@@ -128,6 +128,43 @@ void PathFollower::followPath(std::string path_name) {
 
 void PathFollower::followPathRamsete(std::string path_name) {
     std::vector<squiggles::ProfilePoint> path = paths[path_name];
+
+    RamseteController controller;
+    controller.setGains(0.7, 0.7);
+
+    std::size_t pathSize = path.size();
+    for (std::size_t i = 0; i < pathSize; i++) {  // used to be ++i
+
+
+        auto x = m2in(path[i].vector.pose.x); 
+        auto y = m2in(path[i].vector.pose.y);
+        auto theta = path[i].vector.pose.yaw;
+        auto vel = m2in(path[i].vector.vel);
+
+        auto omega = vel / m2in(1/path[i].curvature);
+
+        controller.setTarget(x, y, theta, vel, omega);
+
+        auto output = controller.step(arms::odom::getPosition(), arms::odom::getHeading(true));
+
+        auto linearMotorVelocity = output.linVel/(M_PI*WHEELDIAMETER);
+        auto leftRPM = inps2rpm(linearMotorVelocity + output.angVel);
+        auto rightRPM = inps2rpm(linearMotorVelocity - output.angVel);
+
+
+		arms::chassis::leftMotors->move_velocity(leftRPM);
+		arms::chassis::rightMotors->move_velocity(rightRPM);
+        
+        if (i < pathSize - 1) {
+            double delay = path[i+1].time - path[i].time;
+            pros::delay(delay*1000);
+        }
+    }
+}
+
+/*
+void PathFollower::followPathRamsete(std::string path_name) {
+    std::vector<squiggles::ProfilePoint> path = paths[path_name];
     
     RamseteController controller;
     controller.setGains(0.7, 0.7);
@@ -161,6 +198,7 @@ void PathFollower::followPathRamsete(std::string path_name) {
         }
     }
 }
+*/
 
 
 
