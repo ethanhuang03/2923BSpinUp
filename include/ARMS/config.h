@@ -13,12 +13,14 @@ namespace arms {
 #define LEFT_MOTORS 1, 2
 #define RIGHT_MOTORS -3, -4
 #define GEARSET pros::E_MOTOR_GEAR_600 // RPM of chassis motors
-#define GEARRATIO 60/36 // Gear ratio of chassis motors
-#define WHEELRADIUS 2.75 // Radius of chassis wheels in inches
+
+// Motion Planning Specific Stuff
+#define GEARRATIO 60/36    // Gear ratio of chassis motors
+#define WHEELDIAMETER 3.25 // Diameter of chassis wheels in inches
 
 // Ticks per inch
-#define TPI 1      			  // Encoder ticks per inch of forward robot movement
-#define MIDDLE_TPI 1          // Ticks per inch for the middle wheel
+#define TPI 360/(3.25*M_PI)                 // Encoder ticks per inch of forward robot movement
+#define MIDDLE_TPI 360/(2.75*M_PI)          // Ticks per inch for the middle wheel
 
 // Tracking wheel distances
 #define TRACK_WIDTH 0 		  // The distance between left and right wheels (or tracker wheels)

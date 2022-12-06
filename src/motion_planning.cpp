@@ -5,7 +5,7 @@
 
 
 double inps2rpm(double inps) { // wheel radius in inches
-    return (inps * 60 / (2 * M_PI * WHEELRADIUS))/GEARRATIO;
+    return (inps * 60 / (M_PI * WHEELDIAMETER))/GEARRATIO;
 }
 
 
@@ -150,7 +150,7 @@ void PathFollower::followPathRamsete(std::string path_name) {
                 // Constantly update this until delay ends
                 auto output = controller.step(arms::odom::getPosition(), arms::odom::getHeading(true));
 
-                auto linearMotorVelocity = output.linVel/(2*M_PI*WHEELRADIUS);
+                auto linearMotorVelocity = output.linVel/(M_PI*WHEELDIAMETER);
                 auto leftRPM = inps2rpm(linearMotorVelocity + output.angVel);
                 auto rightRPM = inps2rpm(linearMotorVelocity - output.angVel);
 
