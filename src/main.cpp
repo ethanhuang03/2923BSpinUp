@@ -1,5 +1,4 @@
 #include "main.h"
-#include "ARMS/config.h"
 
 
 pros::Controller master(pros::E_CONTROLLER_MASTER);

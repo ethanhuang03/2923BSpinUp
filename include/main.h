@@ -40,7 +40,8 @@
  * You should add more #includes here
  */
 #include "ARMS/api.h"
-#include "squiggles.hpp"
+#include "ARMS/config.h"
+#include "motion_profiling/api.h"
 //#include "okapi/api.hpp"
 //#include "pros/api_legacy.h"
 
