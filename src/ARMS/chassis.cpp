@@ -28,6 +28,7 @@ double leftPrev = 0;
 double rightPrev = 0;
 double leftDriveSpeed = 0;
 double rightDriveSpeed = 0;
+Point virtualPosition;
 
 /**************************************************/
 // motor control

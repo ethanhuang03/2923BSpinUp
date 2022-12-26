@@ -11,6 +11,7 @@ class PathFollower {
         void createPath(std::string constraint_name, std::string path_name, std::vector<std::vector<double>> waypoints);
         void followPath(std::string path_name);
         void followPathRamsete(std::string path_name);
+		void followPathOdom(std::string path_name, std::vector<std::vector<double>> waypoints);
         PathFollower(double robot_width) {            
             robot_width = robot_width;
         }
