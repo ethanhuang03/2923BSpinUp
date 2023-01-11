@@ -36,10 +36,10 @@ void PathFollower::createConstraints(std::string constraint_name, double max_vel
 }
 
 // Generate Path (waypoint in in, angles in degrees)
-void PathFollower::createPath(std::string constraint_name, std::string path_name, std::vector<std::vector<double>> waypoints) { // in, in, deg
+void PathFollower::createPath(std::string constraint_name, std::string path_name, std::vector<std::vector<double>> waypoints) { // in, in, deg //heading might be different
     std::vector<double> constraint = constraints[constraint_name];
     squiggles::Constraints squiggles_constraints = squiggles::Constraints(constraint[0], constraint[1], constraint[2]);
-    squiggles::SplineGenerator generator = squiggles::SplineGenerator(squiggles_constraints, std::make_shared<squiggles::TankModel>(robot_width, constraints));
+    squiggles::SplineGenerator generator = squiggles::SplineGenerator(squiggles_constraints, std::make_shared<squiggles::TankModel>(robot_width, squiggles_constraints));
     std::vector<squiggles::Pose> points;
     for (int i = 0; i < waypoints.size(); i++) {
         points.push_back(squiggles::Pose(in2m(waypoints[i][0]), in2m(waypoints[i][1]), deg2rad(waypoints[i][2]))); // convert in to m, deg to rad
