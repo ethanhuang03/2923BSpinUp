@@ -7,12 +7,12 @@
 namespace arms {
 
 // Debug
-#define ODOM_DEBUG 0
+#define ODOM_DEBUG 1
 
 // Negative numbers mean reversed motor
-#define LEFT_MOTORS 1, 2, 3
-#define RIGHT_MOTORS -4, -5, -6
-#define GEARSET pros::E_MOTOR_GEAR_600 // RPM of chassis motors
+#define LEFT_MOTORS 1, 2
+#define RIGHT_MOTORS -3, -4 
+#define GEARSET pros::E_MOTOR_GEAR_200 // RPM of chassis motors
 
 // Motion Planning Specific Stuff
 #define GEARRATIO 60/36    // Gear ratio of chassis motors
@@ -23,12 +23,12 @@ namespace arms {
 #define MIDDLE_TPI 360/(2.75*M_PI)          // Ticks per inch for the middle wheel
 
 // Tracking wheel distances
-#define TRACK_WIDTH 0 		  // The distance between left and right wheels (or tracker wheels)
-#define MIDDLE_DISTANCE 0     // Distance from middle wheel to the robot turning center
+#define TRACK_WIDTH 14.75 		  // The distance between left and right wheels (or tracker wheels)
+#define MIDDLE_DISTANCE 2     // Distance from middle wheel to the robot turning center
 
 // Sensors
-#define IMU_PORT 0                           // Port 0 for disabled
-#define ENCODER_PORTS 0, 0, 0                // Port 0 for disabled,
+#define IMU_PORT 5                           // Port 0 for disabled
+#define ENCODER_PORTS 3, 7, 5                // Port 0 for disabled,
 #define EXPANDER_PORT 0                      // Port 0 for disabled
 #define ENCODER_TYPE arms::odom::ENCODER_ADI // The type of encoders
 

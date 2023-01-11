@@ -18,6 +18,7 @@ from pros.serial.ports import PortConnectionException
 from chart_manager import ChartManager
 
 
+
 class GUITerminal(Terminal):
     def __init__(self, port_instance: StreamDevice, transformations=(),
                  output_raw: bool = False, request_banner: bool = True):
@@ -68,7 +69,6 @@ class GUITerminal(Terminal):
 
 
 def main():
-    # Use same logging system as PROS
     ctx_obj = {}
     click_handler = PROSLogHandler(ctx_obj=ctx_obj)
     ctx_obj['click_handler'] = click_handler
@@ -76,7 +76,7 @@ def main():
     click_handler.setFormatter(formatter)
     logging.basicConfig(level=logging.INFO, handlers=[click_handler])
 
-    logger(__name__).info("Starting Application...")
+    logger(__name__).info("Starting C# GUI Application...")
 
     # Wait for GUI to launch
     logger(__name__).info("Application successfully started, waiting for connection")

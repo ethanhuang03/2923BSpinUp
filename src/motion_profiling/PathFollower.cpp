@@ -7,6 +7,10 @@ double inps2rpm(double inps) { // wheel radius in inches
 }
 
 
+double mps2rpm(double mps) { // wheel radius in meters
+	return (mps * 60 / (M_PI * WHEELDIAMETER))*GEARRATIO;
+}
+
 double m2in(double m) {
     return m * 39.37;
 }
@@ -27,12 +31,12 @@ double rad2deg(double rad) {
 }
 
 // Constrains in SI Units
-void PathFollower::createConstraints(std::string constraint_name, double max_vel, double max_acc, double max_jerk) {
+void PathFollower::createConstraints(std::string constraint_name, double max_vel, double max_acc, double max_jerk) { // m/s, m/s^2, m/s^3
     constraints[constraint_name] = {max_vel, max_acc, max_jerk};
 }
 
 // Generate Path (waypoint in in, angles in degrees)
-void PathFollower::createPath(std::string constraint_name, std::string path_name, std::vector<std::vector<double>> waypoints) {
+void PathFollower::createPath(std::string constraint_name, std::string path_name, std::vector<std::vector<double>> waypoints) { // in, in, deg
     std::vector<double> constraint = constraints[constraint_name];
     squiggles::Constraints squiggles_constraints = squiggles::Constraints(constraint[0], constraint[1], constraint[2]);
     squiggles::SplineGenerator generator = squiggles::SplineGenerator(squiggles_constraints, std::make_shared<squiggles::TankModel>(robot_width, constraints));

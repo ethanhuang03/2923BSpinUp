@@ -28,5 +28,3 @@ class PlotOdometry:
 
         plt.show()
         self.fig.canvas.flush_events()
-
-        

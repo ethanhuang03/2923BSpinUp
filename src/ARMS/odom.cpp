@@ -76,6 +76,7 @@ int odomTask() {
 		// get positions of each encoder
 		double left_pos = getLeftEncoder();
 		double right_pos = getRightEncoder();
+
 		double middle_pos = configData.middleEncoderPort ? getMiddleEncoder() : 0;
 
 		// calculate change in each encoder
@@ -117,13 +118,13 @@ int odomTask() {
 		}
 
 		double p = heading - delta_angle / 2.0; // global angle
-
+		
 		// convert to absolute displacement
 		position.x += cos(p) * local_x - sin(p) * local_y;
 		position.y += cos(p) * local_y + sin(p) * local_x;
 
 		if (debug)
-			printf("Odom(%.2f, %.2f, %.2f) \n", position.x, position.y, getHeading());
+			std::cout << "Odom(" << position.x << ", " << position.y << ", " << getHeading() << ")" << std::endl;
 
 		pros::delay(10);
 	}
