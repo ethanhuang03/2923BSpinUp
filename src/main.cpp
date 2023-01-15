@@ -39,19 +39,26 @@ void autonomous() {}
 
 
 void opcontrol() {
+	arms::odom::reset({48, 120}, -90);
+	arms::chassis::setBrakeMode(pros::E_MOTOR_BRAKE_HOLD);
 	PathFollower pathfollower(0.37465);
-	pathfollower.createConstraints("fast", 1.3, 2, 2);
-	pathfollower.createConstraints("slow", 0.5, 2, 2);
-	pathfollower.createPath("fast", "path_fast", {{48, 120, 0}, {72, 96, 180}, {72, 24, 90}, {120, 48, 0}, {120, 48, -90}});
-	pathfollower.createPath("slow", "path_slow", {{48, 120, 0}, {72, 96, 180}, {72, 24, 90}, {120, 48, 0}, {120, 48, -90}});
-	pathfollower.followPath("path_fast");
+	pathfollower.createConstraints("test", 0.275666666666, 9, 18);
+	//pathfollower.createPath("test", "test_path", {{48, 120, -90}, {72, 96, -90}, {72, 24, 0}, {120, 48, -90}, {120, 48, -180}});
+	pathfollower.createPath("test", "test_path", {{48, 120, -90}, {48, 72, -90}});
+	pathfollower.printPath("test_path");
 
-	/*
-	arms::odom::reset({48, 120}, 90);
+
+
 	while(true) {
+		if (master.get_digital(pros::E_CONTROLLER_DIGITAL_X)) {
+			pathfollower.followPath("test_path");
+		}
+		else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_A)) {
+			pathfollower.followPathRamsete("test_path");
+		}
 		arms::chassis::tank(master.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y), master.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_Y));
 		pros::delay(10);
 	}
-	*/
+
 }
 

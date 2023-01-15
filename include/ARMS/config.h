@@ -7,7 +7,7 @@
 namespace arms {
 
 // Debug
-#define ODOM_DEBUG 1
+#define ODOM_DEBUG 0
 
 // Negative numbers mean reversed motor
 #define LEFT_MOTORS 1, 2
@@ -15,7 +15,7 @@ namespace arms {
 #define GEARSET pros::E_MOTOR_GEAR_200 // RPM of chassis motors
 
 // Motion Planning Specific Stuff
-#define GEARRATIO 60/36    // Gear ratio of chassis motors
+#define GEARRATIO 1/1    // Gear ratio of chassis motors // output:input 60/36
 #define WHEELDIAMETER 3.25 // Diameter of chassis wheels in inches
 
 // Ticks per inch

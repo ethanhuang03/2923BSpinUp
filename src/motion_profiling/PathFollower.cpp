@@ -3,28 +3,20 @@
 
 
 double inps2rpm(double inps) { // wheel radius in inches
-    return (inps * 60 / (M_PI * WHEELDIAMETER))*GEARRATIO;
-}
-
-
-double mps2rpm(double mps) { // wheel radius in meters
-	return (mps * 60 / (M_PI * WHEELDIAMETER))*GEARRATIO;
+    return (inps * 60 / (M_PI * WHEELDIAMETER))/GEARRATIO;
 }
 
 double m2in(double m) {
     return m * 39.37;
 }
 
-
 double in2m(double in) {
     return in / 39.37;
 }
 
-
 double deg2rad(double deg) {
 	return deg * M_PI / 180;
 }
-
 
 double rad2deg(double rad) {
 	return rad * 180 / M_PI;
@@ -36,7 +28,7 @@ void PathFollower::createConstraints(std::string constraint_name, double max_vel
 }
 
 // Generate Path (waypoint in in, angles in degrees)
-void PathFollower::createPath(std::string constraint_name, std::string path_name, std::vector<std::vector<double>> waypoints) { // in, in, deg //heading might be different
+void PathFollower::createPath(std::string constraint_name, std::string path_name, std::vector<std::vector<double>> waypoints) { // in, in, deg 
     std::vector<double> constraint = constraints[constraint_name];
     squiggles::Constraints squiggles_constraints = squiggles::Constraints(constraint[0], constraint[1], constraint[2]);
     squiggles::SplineGenerator generator = squiggles::SplineGenerator(squiggles_constraints, std::make_shared<squiggles::TankModel>(robot_width, squiggles_constraints));
@@ -47,16 +39,21 @@ void PathFollower::createPath(std::string constraint_name, std::string path_name
     paths[path_name] = generator.generate(points); // returns meters, meters, radians
 }
 
+void PathFollower::printPath(std::string path_name) {
+	std::vector<squiggles::ProfilePoint> path = paths[path_name];
+	for (size_t i = 0; i < path.size(); i++) {
+		std::cout << "x:	" << m2in(path[i].vector.pose.x) << " y:	" << m2in(path[i].vector.pose.y) << " theta:	" << rad2deg(path[i].vector.pose.yaw) << " v:	" << path[i].vector.vel << " a:	" << path[i].vector.accel << " j:	" << path[i].vector.jerk << " w-rpm:	" << inps2rpm(m2in(path[i].wheel_velocities[0])) << ", " << inps2rpm(m2in(path[i].wheel_velocities[1])) << " k:	" << path[i].curvature << " t:	" << path[i].time << std::endl;
+	}
+}
+
 void PathFollower::followPath(std::string path_name) {
     std::vector<squiggles::ProfilePoint> path = paths[path_name];
     std::size_t pathSize = path.size();
     for (std::size_t i = 0; i < pathSize; i++) {  // used to be ++i
         auto leftRPM = inps2rpm(m2in(path[i].wheel_velocities[0]));
         auto rightRPM = inps2rpm(m2in(path[i].wheel_velocities[1]));
-
-		arms::chassis::leftMotors->move_velocity(leftRPM);
-		arms::chassis::rightMotors->move_velocity(rightRPM);
-        
+		arms::chassis::tank(leftRPM, rightRPM, true);
+		std::cout << arms::chassis::leftMotors->get_actual_velocities()[0] << ", " << arms::chassis::rightMotors->get_actual_velocities()[0] << std::endl;        
         if (i < pathSize - 1) {
             double delay = path[i+1].time - path[i].time;
             pros::delay(delay*1000);
@@ -68,7 +65,7 @@ void PathFollower::followPathRamsete(std::string path_name) {
     std::vector<squiggles::ProfilePoint> path = paths[path_name];
 
     RamseteController controller;
-    controller.setGains(0.7, 0.7);
+    controller.setGains(0.1, 0);
 
     std::size_t pathSize = path.size();
     for (std::size_t i = 0; i < pathSize; i++) {  // used to be ++i
@@ -90,8 +87,7 @@ void PathFollower::followPathRamsete(std::string path_name) {
         auto rightRPM = inps2rpm(linearMotorVelocity - output.angVel);
 
 
-		arms::chassis::leftMotors->move_velocity(leftRPM);
-		arms::chassis::rightMotors->move_velocity(rightRPM);
+		arms::chassis::tank(leftRPM, rightRPM, true); 
         
         if (i < pathSize - 1) {
             double delay = path[i+1].time - path[i].time;
@@ -127,8 +123,7 @@ void PathFollower::followPathOdom(std::string path_name, std::vector<std::vector
         auto leftRPM = inps2rpm(m2in(path[i].wheel_velocities[0]));
         auto rightRPM = inps2rpm(m2in(path[i].wheel_velocities[1]));
 
-		arms::chassis::leftMotors->move_velocity(leftRPM);
-		arms::chassis::rightMotors->move_velocity(rightRPM);
+		arms::chassis::tank(leftRPM, rightRPM, true); 
         
         if (i < pathSize - 1) {
             double delay = path[i+1].time - path[i].time;
@@ -136,3 +131,9 @@ void PathFollower::followPathOdom(std::string path_name, std::vector<std::vector
         }
     }
 }
+
+/*
+odometry deals with heading, pathfidner deals with yaw
+yaw is clockwise 
+heading is anticlocwise
+*/
