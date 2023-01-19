@@ -72,18 +72,35 @@ void PathGenerator::printPath(std::string path_name) {
 	}
 }
 
+//TODO interpolate points so that it fits ryanlib's every 10ms rather than every 100 ms like squiggles
 void PathGenerator::generateRyanlibPath(std::string path_name) {
 	std::vector<squiggles::ProfilePoint> path = paths[path_name];
 	// {left_pos, right_pos, left_vel, right_vel, left_acc, right_acc}
 	double prev_time = 0;
 	std::vector<std::vector<double>> trajectory = {{0,0,0,0,0,0}};
-	for (size_t i = 0; i < path.size()-1; i++) {
+	for (size_t i = 1; i < path.size()-1; i++) {
 		double left_distance = trajectory[trajectory.size()-1][0] + path[i].wheel_velocities[0] * (path[i+1].time - path[i].time);
 		double right_distance = trajectory[trajectory.size()-1][1] + path[i].wheel_velocities[1] * (path[i+1].time - path[i].time);
 		double left_accel = (path[i].wheel_velocities[0] - trajectory[trajectory.size()-1][2]) / (path[i].time - prev_time);
 		double right_accel = (path[i].wheel_velocities[1] - trajectory[trajectory.size()-1][3]) / (path[i].time - prev_time);
 		prev_time = path[i].time;
 		trajectory.push_back({left_distance, right_distance, path[i].wheel_velocities[0], path[i].wheel_velocities[1], left_accel, right_accel});
+	}
+
+	// last point
+	trajectory.push_back({
+		trajectory[trajectory.size()-1][0] + path[path.size()-1].wheel_velocities[0] * (0.1),
+		trajectory[trajectory.size()-1][1] + path[path.size()-1].wheel_velocities[1] * (0.1),
+		path[path.size()-1].wheel_velocities[0],
+		path[path.size()-1].wheel_velocities[1],
+		(path[path.size()-1].wheel_velocities[0] - trajectory[trajectory.size()-1][2]) / (path[path.size()-1].time - prev_time),
+		(path[path.size()-1].wheel_velocities[1] - trajectory[trajectory.size()-1][3]) / (path[path.size()-1].time - prev_time)
+	});
+	
+	//print trajectory
+	std::cout << "|left_pos|right_pos|left_vel|right_vel|left_acc|right_acc|" << std::endl;
+	for (size_t i = 0; i < trajectory.size(); i++) {
+		std::cout << "|" << trajectory[i][0] << "|" << trajectory[i][1] << "|" << trajectory[i][2] << "|" << trajectory[i][3] << "|" << trajectory[i][4] << "|" << trajectory[i][5] << "|" << std::endl;
 	}
 }
 
@@ -93,6 +110,6 @@ int main()
 	PathGenerator pathgenerator(0.37465);
 	pathgenerator.createConstraints("test", 0.275666666666, 9, 18);
 	//pathfollower.createPath("test", "test_path", {{48, 120, -90}, {72, 96, -90}, {72, 24, 0}, {120, 48, -90}, {120, 48, -180}});
-	pathgenerator.createPath("test", "test_path", {{48, 72, -90}, {48, 72, 0}});
-	pathgenerator.printPath("test_path");
+	pathgenerator.createPath("test", "test_path", {{48, 72, -90}, {48, 48, -90}});
+	pathgenerator.generateRyanlibPath("test_path");
 }
