@@ -1,5 +1,6 @@
 #include <iostream>
 #include <string>
+#include <fstream>
 #include <unordered_map>
 #include <vector>
 #include "squiggles.hpp"
@@ -38,7 +39,8 @@ class PathGenerator {
         void createConstraints(std::string constraint_name, double max_vel, double max_acc, double max_jerk);
         void createPath(std::string constraint_name, std::string path_name, std::vector<std::vector<double>> waypoints);
 		void printPath(std::string path_name);
-		void generateRyanlibPath(std::string path_name);
+		void interpolateTimes(std::string constraint_name, std::string path_name, std::vector<std::vector<double>> waypoints);
+		void generateRyanlibPath(std::string path_name, std::string file_name);
         PathGenerator(double rw) {            
             robot_width = rw;
         }
@@ -64,16 +66,26 @@ void PathGenerator::createPath(std::string constraint_name, std::string path_nam
     paths[path_name] = generator.generate(points); // returns meters, meters, radians
 }
 
-void PathGenerator::printPath(std::string path_name) {
-	std::vector<squiggles::ProfilePoint> path = paths[path_name];
-	std::cout << "|x|y|theta|v|a|j|w-rpm|k|t|" << std::endl;
-	for (size_t i = 0; i < path.size(); i++) {
-		std::cout << "|" << m2in(path[i].vector.pose.x) << "|" << m2in(path[i].vector.pose.y) << "|" << rad2deg(path[i].vector.pose.yaw) << "|" << path[i].vector.vel << "|" << path[i].vector.accel << "|" << path[i].vector.jerk << "|" << inps2rpm(m2in(path[i].wheel_velocities[0])) << ", " << inps2rpm(m2in(path[i].wheel_velocities[1])) << "|" << path[i].curvature << "|" << path[i].time << "|" << std::endl;
+// Generate Path (waypoint in in, angles in degrees)
+void PathGenerator::interpolateTimes(std::string constraint_name, std::string path_name, std::vector<std::vector<double>> waypoints) { // in, in, deg 
+    std::vector<double> constraint = constraints[constraint_name];
+    squiggles::Constraints squiggles_constraints = squiggles::Constraints(constraint[0], constraint[1], constraint[2]);
+    squiggles::SplineGenerator generator = squiggles::SplineGenerator(squiggles_constraints, std::make_shared<squiggles::TankModel>(robot_width, squiggles_constraints));
+    std::vector<squiggles::Pose> points;
+    for (size_t i = 0; i < waypoints.size(); i++) {
+        points.push_back(squiggles::Pose(in2m(waypoints[i][0]), in2m(waypoints[i][1]), deg2rad(waypoints[i][2]))); // convert in to m, deg to rad
+    }
+	
+    std::vector<squiggles::ProfilePoint> temp =  generator.generate(points); // returns meters, meters, radians
+	double time = temp[temp.size()-1].time;
+	double counter = 0;
+	while (counter <= time) {
+		paths[path_name].push_back(generator.get_point_at_time(temp[0].vector, temp[temp.size()-1].vector, temp, counter));
+		counter += 0.01;
 	}
 }
 
-//TODO interpolate points so that it fits ryanlib's every 10ms rather than every 100 ms like squiggles
-void PathGenerator::generateRyanlibPath(std::string path_name) {
+void PathGenerator::generateRyanlibPath(std::string path_name, std::string file_name) {
 	std::vector<squiggles::ProfilePoint> path = paths[path_name];
 	// {left_pos, right_pos, left_vel, right_vel, left_acc, right_acc}
 	double prev_time = 0;
@@ -89,19 +101,43 @@ void PathGenerator::generateRyanlibPath(std::string path_name) {
 
 	// last point
 	trajectory.push_back({
-		trajectory[trajectory.size()-1][0] + path[path.size()-1].wheel_velocities[0] * (0.1),
-		trajectory[trajectory.size()-1][1] + path[path.size()-1].wheel_velocities[1] * (0.1),
+		trajectory[trajectory.size()-1][0] + path[path.size()-1].wheel_velocities[0] * (0.01),
+		trajectory[trajectory.size()-1][1] + path[path.size()-1].wheel_velocities[1] * (0.01),
 		path[path.size()-1].wheel_velocities[0],
 		path[path.size()-1].wheel_velocities[1],
 		(path[path.size()-1].wheel_velocities[0] - trajectory[trajectory.size()-1][2]) / (path[path.size()-1].time - prev_time),
 		(path[path.size()-1].wheel_velocities[1] - trajectory[trajectory.size()-1][3]) / (path[path.size()-1].time - prev_time)
 	});
-	
-	//print trajectory
-	std::cout << "|left_pos|right_pos|left_vel|right_vel|left_acc|right_acc|" << std::endl;
-	for (size_t i = 0; i < trajectory.size(); i++) {
-		std::cout << "|" << trajectory[i][0] << "|" << trajectory[i][1] << "|" << trajectory[i][2] << "|" << trajectory[i][3] << "|" << trajectory[i][4] << "|" << trajectory[i][5] << "|" << std::endl;
-	}
+
+    std::ofstream file;
+    file.open(file_name+".cpp", std::ios::out | std::ios::app);
+    file << "Trajectory " << file_name << "::" << path_name << " = {" << std::endl;
+    for (size_t i = 0; i < trajectory.size(); i++) {
+        file << "    { ";
+        for (size_t j = 0; j < trajectory[i].size(); j++) {
+            file << trajectory[i][j];
+            if (j < trajectory[i].size() - 1) {
+                file << ", ";
+            }
+        }
+        file << " }";
+        if (i < trajectory.size() - 1) {
+            file << ",";
+        }
+        file << std::endl;
+    }
+    file << "};" << std::endl;
+	file << std::endl;
+	file << std::endl;
+    file.close();
+}
+
+void PathGenerator::printPath(std::string path_name) {
+	std::vector<squiggles::ProfilePoint> path = paths[path_name];
+	std::cout << "|x|y|theta|v|a|j|w-rpm|k|t|" << std::endl;
+	for (size_t i = 0; i < path.size(); i++) {
+		std::cout << "|" << m2in(path[i].vector.pose.x) << "|" << m2in(path[i].vector.pose.y) << "|" << rad2deg(path[i].vector.pose.yaw) << "|" << path[i].vector.vel << "|" << path[i].vector.accel << "|" << path[i].vector.jerk << "|" << inps2rpm(m2in(path[i].wheel_velocities[0])) << ", " << inps2rpm(m2in(path[i].wheel_velocities[1])) << "|" << path[i].curvature << "|" << path[i].time << "|" << std::endl;
+	}	
 }
 
 
@@ -109,7 +145,6 @@ int main()
 {
 	PathGenerator pathgenerator(0.37465);
 	pathgenerator.createConstraints("test", 0.275666666666, 9, 18);
-	//pathfollower.createPath("test", "test_path", {{48, 120, -90}, {72, 96, -90}, {72, 24, 0}, {120, 48, -90}, {120, 48, -180}});
-	pathgenerator.createPath("test", "test_path", {{48, 72, -90}, {48, 48, -90}});
-	pathgenerator.generateRyanlibPath("test_path");
+	pathgenerator.interpolateTimes("test", "test_path", {{48, 72, -90}, {48, 48, -90}});
+	pathgenerator.generateRyanlibPath("test_path", "skills");
 }
