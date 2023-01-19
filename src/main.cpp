@@ -2,18 +2,33 @@
 
 // Controller
 Controller master(ControllerId::master); 
-Controller partner(ControllerId::partner);
 
 // Motors
 Motor leftBack(1, false, AbstractMotor::gearset::green, AbstractMotor::encoderUnits::degrees); 
 Motor leftFront(2, false, AbstractMotor::gearset::green, AbstractMotor::encoderUnits::degrees); 
 Motor rightBack(3, true, AbstractMotor::gearset::green, AbstractMotor::encoderUnits::degrees); 
 Motor rightFront(4, true, AbstractMotor::gearset::green, AbstractMotor::encoderUnits::degrees); 
+
+Motor leftPTO(5, false, AbstractMotor::gearset::green, AbstractMotor::encoderUnits::degrees);
+Motor rightPTO(6, true, AbstractMotor::gearset::green, AbstractMotor::encoderUnits::degrees);
+Motor winch(7, true, AbstractMotor::gearset::green, AbstractMotor::encoderUnits::degrees);
+
+Motor intake_roller(8, false, AbstractMotor::gearset::blue, AbstractMotor::encoderUnits::degrees);
+
 MotorGroup leftDrive({leftFront, leftBack});
 MotorGroup rightDrive({rightFront, rightBack});
 
+MotorGroup leftPTOGroup({leftPTO, leftFront, leftBack});
+MotorGroup rightPTOGroup({rightPTO, rightFront, rightBack});
+
+MotorGroup winchPTO({winch, leftPTO, rightPTO});
+
 // Sensors
-IMU imu(5);
+IMU imu(9);
+
+// Pneumatics
+Pneumatics PTO1(1, true);
+Pneumatics PTO2(2, true);
 
 // Contraints
 ProfileConstraint constraint({0.275666666666_mps, 9_mps2, 19_mps2, 18_mps3});
@@ -23,19 +38,23 @@ FFVelocityController leftTrajectory(0.187, 0.04, 0.025, 2.5, 0);
 FFVelocityController rightTrajectory(0.187, 0.043, 0.02, 2.5, 0);
 
 // Controllers
+std::shared_ptr<ChassisController> drive;
 std::shared_ptr<ChassisController> chassis;
+std::shared_ptr<ChassisController> chassisPTO;
+
 std::shared_ptr<AsyncMotionProfiler> profiler;
-std::shared_ptr<AsyncMotionProfiler> profiler2;
+std::shared_ptr<AsyncMotionProfiler> profiler_blind;
 
 // PID Controllers 
 std::shared_ptr<IterativePosPIDController> turnPID = std::make_shared<IterativePosPIDController>(0.06, 0.005, 0.00115, 0, TimeUtilFactory::withSettledUtilParams(2, 2, 200_ms));
 std::shared_ptr<IterativePosPIDController> movePID = std::make_shared<IterativePosPIDController>(0.1, 0.0, 0.002, 0, TimeUtilFactory::withSettledUtilParams(2, 2, 100_ms));
 std::shared_ptr<IterativePosPIDController> headingPID = std::make_shared<IterativePosPIDController>(0.118, 0, 0, 0, TimeUtilFactory::createDefault());
 
-// Constants
+// Global Variables
 const double DEADBAND = 0.0500;
+bool isPTO = false; // false is able to winch
 
-// Functions
+// Movement Functions
 void moveTime(std::pair<double, double> speed, QTime time) {
     (chassis->getModel())->tank(speed.first, speed.second);
     pros::delay(time.convert(millisecond));
@@ -87,15 +106,38 @@ void turnToAngle(QAngle targetAngle){
     (chassis->getModel())->stop();
 }
 
+// Utility Functions
+void PTO() {
+	PTO1.toggle();
+	PTO2.toggle();
+	isPTO = !isPTO;
+	if(isPTO) {
+		drive = chassisPTO;
+	} else {
+		drive = chassis;
+	}
+}
+
+// Autonomous Functions
+void AWP() {}
+void left() {}
+void right() {}
 
 // Competition
 void initialize() {
-	// Controllers
+	// Controllers Initialization
 	chassis = ChassisControllerBuilder()
 		.withMotors(leftDrive, rightDrive)
-		.withDimensions({AbstractMotor::gearset::green, 1.0/1.0}, {{3.25_in, 14.75_in}, imev5GreenTPR})
+		.withDimensions({AbstractMotor::gearset::green, 36/60}, {{3.25_in, 14.75_in}, imev5GreenTPR})
 		.build();
 
+	chassisPTO = ChassisControllerBuilder()
+		.withMotors(leftPTOGroup, rightPTOGroup)
+		.withDimensions({AbstractMotor::gearset::green, 36/60}, {{3.25_in, 14.75_in}, imev5GreenTPR})
+		.build();
+
+
+	// Profiler and AUTON Always Use chassis NOT chassisPTO
 	profiler = AsyncMotionProfilerBuilder()
 		.withOutput(chassis)
 		.withProfiler(std::make_unique<SCurveMotionProfile>(constraint))
@@ -103,22 +145,54 @@ void initialize() {
 		.withTrajectoryController(leftTrajectory, rightTrajectory)
 		.build();
 
-	profiler2 = AsyncMotionProfilerBuilder()
+	profiler_blind = AsyncMotionProfilerBuilder()
 		.withOutput(chassis)
 		.withProfiler(std::make_unique<SCurveMotionProfile>(constraint))
 		.build();
+	
+	// Autonomous Initialization
+	auto&& selector = AutonSelector::getInstance();
+	selector.addRoute(AWP, "AWP");
+	selector.addRoute(left, "Left");
+	selector.addRoute(right, "Right");
 }
 
 void disabled() {}
 
 void competition_initialize() {}
 
-void autonomous() {}
+void autonomous() {
+	leftDrive.setBrakeMode(AbstractMotor::brakeMode::brake);
+    rightDrive.setBrakeMode(AbstractMotor::brakeMode::brake);
+	AutonSelector::getInstance().execute();
+}
 
 void opcontrol() {
-	turnToAngle(90_deg);
+	leftDrive.setBrakeMode(AbstractMotor::brakeMode::coast);
+	rightDrive.setBrakeMode(AbstractMotor::brakeMode::coast);
+	drive = chassis;
+
 	while (true) {
-		chassis->getModel()->curvature(master.getAnalog(ControllerAnalog::leftY), master.getAnalog(ControllerAnalog::rightX), DEADBAND);
+
+		// PTO Toggle
+		if (master.getDigital(ControllerDigital::A)) {
+			PTO();
+			pros::delay(200);
+		}
+
+		// Winch
+		if (isPTO == false) {
+			if (master.getDigital(ControllerDigital::L1)) {
+				winch.moveVoltage(12000);
+			} else if (master.getDigital(ControllerDigital::L2)) {
+				winch.moveVoltage(-12000);
+			} else {
+				winch.moveVoltage(0);
+			}
+		}
+
+		// Drive
+		drive->getModel()->curvature(master.getAnalog(ControllerAnalog::leftY), master.getAnalog(ControllerAnalog::rightX), DEADBAND);
 		pros::delay(20);
 	}
 }
