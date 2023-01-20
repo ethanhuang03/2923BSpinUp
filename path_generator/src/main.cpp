@@ -25,6 +25,14 @@ double rad2deg(double rad) {
 	return rad * 180 / M_PI;
 }
 
+double m2ft(double m) {
+	return m * 3.281;
+}
+
+double ft2m(double ft) {
+	return ft / 3.281;
+}
+
 double inps2rpm(double inps) { // wheel radius in inches
     return (inps * 60 / (M_PI * WHEELDIAMETER))/GEARRATIO;
 }
@@ -91,22 +99,22 @@ void PathGenerator::generateRyanlibPath(std::string path_name, std::string file_
 	double prev_time = 0;
 	std::vector<std::vector<double>> trajectory = {{0,0,0,0,0,0}};
 	for (size_t i = 1; i < path.size()-1; i++) {
-		double left_distance = trajectory[trajectory.size()-1][0] + path[i].wheel_velocities[0] * (path[i+1].time - path[i].time);
-		double right_distance = trajectory[trajectory.size()-1][1] + path[i].wheel_velocities[1] * (path[i+1].time - path[i].time);
-		double left_accel = (path[i].wheel_velocities[0] - trajectory[trajectory.size()-1][2]) / (path[i].time - prev_time);
-		double right_accel = (path[i].wheel_velocities[1] - trajectory[trajectory.size()-1][3]) / (path[i].time - prev_time);
+		double left_distance = trajectory[trajectory.size()-1][0] + m2ft(path[i].wheel_velocities[0]) * (path[i+1].time - path[i].time);
+		double right_distance = trajectory[trajectory.size()-1][1] + m2ft(path[i].wheel_velocities[1]) * (path[i+1].time - path[i].time);
+		double left_accel = (m2ft(path[i].wheel_velocities[0]) - trajectory[trajectory.size()-1][2]) / (path[i].time - prev_time);
+		double right_accel = (m2ft(path[i].wheel_velocities[1]) - trajectory[trajectory.size()-1][3]) / (path[i].time - prev_time);
 		prev_time = path[i].time;
-		trajectory.push_back({left_distance, right_distance, path[i].wheel_velocities[0], path[i].wheel_velocities[1], left_accel, right_accel});
+		trajectory.push_back({left_distance, right_distance, m2ft(path[i].wheel_velocities[0]), m2ft(path[i].wheel_velocities[1]), left_accel, right_accel});
 	}
 
 	// last point
 	trajectory.push_back({
-		trajectory[trajectory.size()-1][0] + path[path.size()-1].wheel_velocities[0] * (0.01),
-		trajectory[trajectory.size()-1][1] + path[path.size()-1].wheel_velocities[1] * (0.01),
-		path[path.size()-1].wheel_velocities[0],
-		path[path.size()-1].wheel_velocities[1],
-		(path[path.size()-1].wheel_velocities[0] - trajectory[trajectory.size()-1][2]) / (path[path.size()-1].time - prev_time),
-		(path[path.size()-1].wheel_velocities[1] - trajectory[trajectory.size()-1][3]) / (path[path.size()-1].time - prev_time)
+		trajectory[trajectory.size()-1][0] + m2ft(path[path.size()-1].wheel_velocities[0]) * (0.01),
+		trajectory[trajectory.size()-1][1] + m2ft(path[path.size()-1].wheel_velocities[1]) * (0.01),
+		m2ft(path[path.size()-1].wheel_velocities[0]),
+		m2ft(path[path.size()-1].wheel_velocities[1]),
+		(m2ft(path[path.size()-1].wheel_velocities[0]) - trajectory[trajectory.size()-1][2]) / (path[path.size()-1].time - prev_time),
+		(m2ft(path[path.size()-1].wheel_velocities[1]) - trajectory[trajectory.size()-1][3]) / (path[path.size()-1].time - prev_time)
 	});
 
     std::ofstream file;
