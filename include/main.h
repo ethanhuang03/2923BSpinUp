@@ -41,6 +41,7 @@
  */
 #include "okapi/api.hpp"
 #include "ryanlib/api.hpp"
+#include "autoSelect/selection.h"
 //#include "pros/api_legacy.h"
 
 /**

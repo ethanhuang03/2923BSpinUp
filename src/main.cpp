@@ -28,7 +28,6 @@ IMU imu(9);
 
 // Pneumatics
 Pneumatics PTO1(1, true);
-Pneumatics PTO2(2, true);
 
 // Contraints
 ProfileConstraint constraint({0.275666666666_mps, 9_mps2, 19_mps2, 18_mps3});
@@ -109,7 +108,6 @@ void turnToAngle(QAngle targetAngle){
 // Utility Functions
 void PTO() {
 	PTO1.toggle();
-	PTO2.toggle();
 	isPTO = !isPTO;
 	if(isPTO) {
 		drive = chassisPTO;
@@ -122,20 +120,21 @@ void PTO() {
 void AWP() {}
 void left() {}
 void right() {}
+void skills() {}
 
 // Competition
 void initialize() {
+	imu.calibrate();
+
 	// Controllers Initialization
 	chassis = ChassisControllerBuilder()
 		.withMotors(leftDrive, rightDrive)
-		.withDimensions({AbstractMotor::gearset::green, 36/60}, {{3.25_in, 14.75_in}, imev5GreenTPR})
+		.withDimensions({AbstractMotor::gearset::green, 0.6}, {{3.25_in, 14.75_in}, imev5GreenTPR})
 		.build();
-
 	chassisPTO = ChassisControllerBuilder()
 		.withMotors(leftPTOGroup, rightPTOGroup)
-		.withDimensions({AbstractMotor::gearset::green, 36/60}, {{3.25_in, 14.75_in}, imev5GreenTPR})
+		.withDimensions({AbstractMotor::gearset::green, 0.6}, {{3.25_in, 14.75_in}, imev5GreenTPR})
 		.build();
-
 
 	// Profiler and AUTON Always Use chassis NOT chassisPTO
 	profiler = AsyncMotionProfilerBuilder()
@@ -150,11 +149,8 @@ void initialize() {
 		.withProfiler(std::make_unique<SCurveMotionProfile>(constraint))
 		.build();
 	
-	// Autonomous Initialization
-	auto&& selector = AutonSelector::getInstance();
-	selector.addRoute(AWP, "AWP");
-	selector.addRoute(left, "Left");
-	selector.addRoute(right, "Right");
+	selector::init();
+	
 }
 
 void disabled() {}
@@ -164,7 +160,16 @@ void competition_initialize() {}
 void autonomous() {
 	leftDrive.setBrakeMode(AbstractMotor::brakeMode::brake);
     rightDrive.setBrakeMode(AbstractMotor::brakeMode::brake);
-	AutonSelector::getInstance().execute();
+	if (selector::auton == 0) {
+		skills();
+	} else if (selector::auton == 1) {
+		left();
+	} else if (selector::auton == 2) {
+		right();
+	} else if (selector::auton == 3) {
+		AWP();
+	}
+
 }
 
 void opcontrol() {
@@ -189,6 +194,16 @@ void opcontrol() {
 			} else {
 				winch.moveVoltage(0);
 			}
+		}
+
+		if (master.getDigital(ControllerDigital::R1)) {
+			intake_roller.moveVoltage(12000);
+		}
+		else if (master.getDigital(ControllerDigital::R2)) {
+			intake_roller.moveVoltage(-12000);
+		}
+		else {
+			intake_roller.moveVoltage(0);
 		}
 
 		// Drive

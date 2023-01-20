@@ -12,4 +12,3 @@ using namespace ryan;
 #include "ryanlib/FeedForward.hpp"
 #include "ryanlib/LinearMotionProfile.hpp"
 #include "ryanlib/AsyncProfiler.hpp"
-#include "ryanlib/AutonSelector.hpp"
