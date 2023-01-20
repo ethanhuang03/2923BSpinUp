@@ -188,11 +188,11 @@ void opcontrol() {
 		// Winch
 		if (isPTO == false) {
 			if (master.getDigital(ControllerDigital::L1)) {
-				winch.moveVoltage(12000);
+				winchPTO.moveVoltage(12000);
 			} else if (master.getDigital(ControllerDigital::L2)) {
-				winch.moveVoltage(-12000);
+				winchPTO.moveVoltage(-12000);
 			} else {
-				winch.moveVoltage(0);
+				winchPTO.moveVoltage(0);
 			}
 		}
 
