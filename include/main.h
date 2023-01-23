@@ -40,7 +40,6 @@
  * You should add more #includes here
  */
 #include "okapi/api.hpp"
-#include "ryanlib/api.hpp"
 #include "autoSelect/selection.h"
 //#include "pros/api_legacy.h"
 
@@ -55,7 +54,6 @@
 // using namespace pros;
 // using namespace pros::literals;
 using namespace okapi;
-using namespace ryan;
 
 /**
  * Prototypes for the competition control tasks are redefined here to ensure
@@ -79,6 +77,13 @@ void opcontrol(void);
  * You can add C++-only headers here
  */
 //#include <iostream>
+#include "ryanlib/api.hpp"
+#include "globals.hpp"
+#include "drive.hpp"
+#include "autons.hpp"
+
+using namespace ryan;
+
 #endif
 
 #endif  // _PROS_MAIN_H_
