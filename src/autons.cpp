@@ -102,7 +102,7 @@ void Skills() {
 	// spin roller
 	pros::Task winch_task(winch_checker);
 	intake_roller.moveVoltage(12000);
-	pross:delay(200);
+	pros:delay(200);
 	// move away and turn towards disc
 	moveDistance(1_ft, 1_s);
 	turnToAngle(-45_deg);
@@ -142,8 +142,11 @@ void Skills() {
 	turnToAngle(0_deg);
 	// turn rollers
 	moveDistance(1_ft, 2_s);
-	pross::delay(200);
+	pros::delay(200);
 	moveDistance(-1_ft, 2_s);
+	// turn around and get edge disc
+	turnToAngle(45_deg);
+	moveDistance(1_ft, 2_s);
 }
 
 void AWP(){}
