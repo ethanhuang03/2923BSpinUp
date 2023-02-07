@@ -2,10 +2,10 @@
 
 void winch_checker(){
 	while (limit_switch.get_value() != 1) {
-		winchPTO.moveVoltage(12000);
+		winchGroup.moveVoltage(12000);
 		pros::delay(20);
 	}
-	winchPTO.moveVoltage(3000);
+	winchGroup.moveVoltage(3000);
 }
 
 void Left(){}

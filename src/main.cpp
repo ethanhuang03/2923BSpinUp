@@ -13,11 +13,9 @@ void PTO() {
 	PTO1.toggle();
 	isPTO = !isPTO;
 	if(isPTO) {
-		winchPTO.setBrakeMode(AbstractMotor::brakeMode::coast);
-		drive = chassisPTO;
+		winchGroup.setBrakeMode(AbstractMotor::brakeMode::coast);
 	} else {
-		winchPTO.setBrakeMode(AbstractMotor::brakeMode::hold);
-		drive = chassis;
+		winchGroup.setBrakeMode(AbstractMotor::brakeMode::hold);
 	}
 }
 
@@ -53,7 +51,6 @@ void opcontrol() {
 
 	leftDrive.setBrakeMode(AbstractMotor::brakeMode::coast);
 	rightDrive.setBrakeMode(AbstractMotor::brakeMode::coast);
-	drive = chassis;
 	Right();
 	while (true) {
 		// PTO Warning
@@ -81,29 +78,29 @@ void opcontrol() {
 
 		// PTO And Winch
 		if (master.getDigital(ControllerDigital::L1) && master.getDigital(ControllerDigital::L2) && PTOenabled){
-			winchPTO.moveVoltage(0);
+			winchGroup.moveVoltage(0);
 			PTO();
 			PTOCount -= 1;
-			winchPTO.setBrakeMode(AbstractMotor::brakeMode::coast);
+			winchGroup.setBrakeMode(AbstractMotor::brakeMode::coast);
 			pros::delay(200);
 		}
 		else if (master.getDigital(ControllerDigital::L2) && !isPTO) { // Winch
-			winchPTO.setBrakeMode(AbstractMotor::brakeMode::hold);
-			winchPTO.moveVoltage(12000);
+			winchGroup.setBrakeMode(AbstractMotor::brakeMode::hold);
+			winchGroup.moveVoltage(12000);
 			isBack = false;
 		} 
 		else if (master.getDigital(ControllerDigital::L1) && !isPTO && isBack) { // Unwinch
 			halfShot = true;
-			winchPTO.moveVoltage(-12000);
+			winchGroup.moveVoltage(-12000);
 		}
 		if (limit_switch.get_value() == 1 && !isBack) {
-			winchPTO.moveVoltage(3000);
+			winchGroup.moveVoltage(3000);
 			rotation_sensor.reset();
 			isBack = true;
 		}
 		
 		if (rotation_sensor.get() >= 800 && halfShot) {
-			winchPTO.moveVoltage(3000);
+			winchGroup.moveVoltage(3000);
 			halfShot = false;
 		}
 		
@@ -121,7 +118,7 @@ void opcontrol() {
 		}
 		
 		// Drive
-		drive->getModel()->curvature(master.getAnalog(ControllerAnalog::leftY), master.getAnalog(ControllerAnalog::rightX), DEADBAND);
+		chassis->getModel()->curvature(master.getAnalog(ControllerAnalog::leftY), master.getAnalog(ControllerAnalog::rightX), DEADBAND);
 		pros::delay(20);
 	}
 }
