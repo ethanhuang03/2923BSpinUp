@@ -99,7 +99,7 @@ void opcontrol() {
 			isBack = true;
 		}
 		
-		if (rotation_sensor.get() >= 800 && halfShot) {
+		if (rotation_sensor.get() >= 500 && halfShot) {
 			winchGroup.moveVoltage(3000);
 			halfShot = false;
 		}
