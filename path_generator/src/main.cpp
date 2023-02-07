@@ -152,7 +152,7 @@ void PathGenerator::printPath(std::string path_name) {
 int main()
 {
 	PathGenerator pathgenerator(0.37465);
-	pathgenerator.createConstraints("test", 0.275666666666, 9, 18);
+	pathgenerator.createConstraints("test", 0.8644615785, 0.6359589680591999, 1.27191793612);
 	pathgenerator.interpolateTimes("test", "test_path", {{48, 72, -90}, {48, 48, -90}});
 	pathgenerator.generateRyanlibPath("test_path", "skills");
 }

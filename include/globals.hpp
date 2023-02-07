@@ -26,9 +26,12 @@ extern MotorGroup winchPTO;
 
 // Sensors
 extern IMU imu;
+extern RotationSensor rotation_sensor;
+extern pros::ADIDigitalIn limit_switch;
 
 // Pneumatics
 extern Pneumatics PTO1;
+extern Pneumatics expansion;
 
 // Contraints
 extern ProfileConstraint constraint;

@@ -138,8 +138,7 @@ void AsyncMotionProfiler::loop(){
         double rightPos = Math::tickToFt(rightMotor->getPosition(), chassis->getChassisScales(), chassis->getGearsetRatioPair());
         double rightVel = Math::rpmToFtps(rightMotor->getActualVelocity(), chassis->getChassisScales(), chassis->getGearsetRatioPair());
 
-        std::cout << lFilter.filter(leftVel) << std::endl;
-        std::cout << rFilter.filter(rightVel) << std::endl;
+        //std::cout << lFilter.filter(leftVel) << "	" << rFilter.filter(rightVel) << std::endl;
         //std::cout << leftPos << std::endl;
         //std::cout << rightPos << std::endl;
 

@@ -3,14 +3,20 @@
 // Global Variables
 const double DEADBAND = 0.0500;
 bool isPTO = false; // false is able to winch
+bool PTOenabled = true;
+bool isBack = false;
+bool halfShot = false;
+int PTOCount = 32;
 
 // Utility Functions
 void PTO() {
 	PTO1.toggle();
 	isPTO = !isPTO;
 	if(isPTO) {
+		winchPTO.setBrakeMode(AbstractMotor::brakeMode::coast);
 		drive = chassisPTO;
 	} else {
+		winchPTO.setBrakeMode(AbstractMotor::brakeMode::hold);
 		drive = chassis;
 	}
 }
@@ -44,39 +50,76 @@ void autonomous() {
 }
 
 void opcontrol() {
+
 	leftDrive.setBrakeMode(AbstractMotor::brakeMode::coast);
 	rightDrive.setBrakeMode(AbstractMotor::brakeMode::coast);
 	drive = chassis;
-
+	Right();
 	while (true) {
+		// PTO Warning
+		// Display how many shots left and when numnber of shots is 0, disable PTO
+		std::string display = "PTO Shots Left: "+ PTOCount;
+		master.setText(0, 0, display);
+		if (PTOCount < 10 && PTOCount > 0){
+			master.rumble("----");
+			master.setText(1, 0, "PTO Shots Low");
+		}
+		else if (PTOCount == 0){
+			master.clear();
+			master.setText(0, 0, "PTO Shots Empty");
+			PTOenabled = false;
+		}
+		if (!PTOenabled && master.getDigital(ControllerDigital::Y)){ // Override Function because why not?
+			PTOenabled = true;
+		}
 
-		// PTO Toggle
-		if (master.getDigital(ControllerDigital::A)) {
-			PTO();
+		// Expansion
+		if (master.getDigital(ControllerDigital::X)){ // X for Xpansion
+			expansion.toggle();
 			pros::delay(200);
 		}
 
-		// Winch
-		if (isPTO == false) {
-			if (master.getDigital(ControllerDigital::L1)) {
-				winchPTO.moveVoltage(12000);
-			} else if (master.getDigital(ControllerDigital::L2)) {
-				winchPTO.moveVoltage(-12000);
-			} else {
-				winchPTO.moveVoltage(0);
-			}
+		// PTO And Winch
+		if (master.getDigital(ControllerDigital::L1) && master.getDigital(ControllerDigital::L2) && PTOenabled){
+			winchPTO.moveVoltage(0);
+			PTO();
+			PTOCount -= 1;
+			winchPTO.setBrakeMode(AbstractMotor::brakeMode::coast);
+			pros::delay(200);
 		}
+		else if (master.getDigital(ControllerDigital::L2) && !isPTO) { // Winch
+			winchPTO.setBrakeMode(AbstractMotor::brakeMode::hold);
+			winchPTO.moveVoltage(12000);
+			isBack = false;
+		} 
+		else if (master.getDigital(ControllerDigital::L1) && !isPTO && isBack) { // Unwinch
+			halfShot = true;
+			winchPTO.moveVoltage(-12000);
+		}
+		if (limit_switch.get_value() == 1 && !isBack) {
+			winchPTO.moveVoltage(3000);
+			rotation_sensor.reset();
+			isBack = true;
+		}
+		
+		if (rotation_sensor.get() >= 800 && halfShot) {
+			winchPTO.moveVoltage(3000);
+			halfShot = false;
+		}
+		
 
-		if (master.getDigital(ControllerDigital::R1)) {
+		// Intake
+		if (master.getDigital(ControllerDigital::R1) && master.getDigital(ControllerDigital::R2)) {
+			intake_roller.moveVoltage(0);
+			pros::delay(200);
+		}
+		else if (master.getDigital(ControllerDigital::R1) && limit_switch.get_value() == 1) {
 			intake_roller.moveVoltage(12000);
 		}
 		else if (master.getDigital(ControllerDigital::R2)) {
 			intake_roller.moveVoltage(-12000);
 		}
-		else {
-			intake_roller.moveVoltage(0);
-		}
-
+		
 		// Drive
 		drive->getModel()->curvature(master.getAnalog(ControllerAnalog::leftY), master.getAnalog(ControllerAnalog::rightX), DEADBAND);
 		pros::delay(20);
