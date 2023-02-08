@@ -5,7 +5,7 @@ void winch_checker(){
 		winchGroup.moveVoltage(12000);
 		pros::delay(20);
 	}
-	winchGroup.moveVoltage(3000);
+	winchGroup.moveVoltage(1200);
 }
 
 void shoot(int angle) {
@@ -102,7 +102,7 @@ void Skills() {
 	// spin roller
 	pros::Task winch_task(winch_checker);
 	intake_roller.moveVoltage(12000);
-	pros:delay(200);
+	pros::delay(200);
 	// move away and turn towards disc
 	moveDistance(1_ft, 1_s);
 	turnToAngle(-45_deg);

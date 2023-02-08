@@ -51,7 +51,7 @@ void opcontrol() {
 
 	leftDrive.setBrakeMode(AbstractMotor::brakeMode::coast);
 	rightDrive.setBrakeMode(AbstractMotor::brakeMode::coast);
-	Right();
+
 	while (true) {
 		// PTO Warning
 		// Display how many shots left and when numnber of shots is 0, disable PTO
@@ -82,31 +82,33 @@ void opcontrol() {
 			PTO();
 			PTOCount -= 1;
 			winchGroup.setBrakeMode(AbstractMotor::brakeMode::coast);
+			isBack = false;
 			pros::delay(200);
 		}
 		else if (master.getDigital(ControllerDigital::L2) && !isPTO) { // Winch
 			winchGroup.setBrakeMode(AbstractMotor::brakeMode::hold);
 			winchGroup.moveVoltage(12000);
-			isBack = false;
 		} 
 		else if (master.getDigital(ControllerDigital::L1) && !isPTO && isBack) { // Unwinch
 			halfShot = true;
 			winchGroup.moveVoltage(-12000);
+			isBack = false;
+		}
+		if (rotation_sensor.get() >= 300 && halfShot) {
+			winchGroup.moveVoltage(1200);
+			halfShot = false;
 		}
 		if (limit_switch.get_value() == 1 && !isBack) {
-			winchGroup.moveVoltage(3000);
+			winchGroup.moveVoltage(1200);
 			rotation_sensor.reset();
 			isBack = true;
 		}
 		
-		if (rotation_sensor.get() >= 500 && halfShot) {
-			winchGroup.moveVoltage(3000);
-			halfShot = false;
-		}
+
 		
 
 		// Intake
-		if (master.getDigital(ControllerDigital::R1) && master.getDigital(ControllerDigital::R2)) {
+		if (master.getDigital(ControllerDigital::R1) && master.getDigital(ControllerDigital::R2) || limit_switch.get_value() == 0) {
 			intake_roller.moveVoltage(0);
 			pros::delay(200);
 		}
