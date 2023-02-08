@@ -93,6 +93,7 @@ void opcontrol() {
 			halfShot = true;
 			winchGroup.moveVoltage(-12000);
 			isBack = false;
+			pros::delay(200);
 		}
 		if (rotation_sensor.get() >= 300 && halfShot) {
 			winchGroup.moveVoltage(1200);
@@ -112,10 +113,10 @@ void opcontrol() {
 			intake_roller.moveVoltage(0);
 			pros::delay(200);
 		}
-		else if (master.getDigital(ControllerDigital::R1) && limit_switch.get_value() == 1) {
+		else if (master.getDigital(ControllerDigital::R2) && limit_switch.get_value() == 1) {
 			intake_roller.moveVoltage(12000);
 		}
-		else if (master.getDigital(ControllerDigital::R2)) {
+		else if (master.getDigital(ControllerDigital::R1)) {
 			intake_roller.moveVoltage(-12000);
 		}
 		
