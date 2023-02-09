@@ -48,7 +48,11 @@ void autonomous() {
 }
 
 void opcontrol() {
-
+	
+	leftDrive.setBrakeMode(AbstractMotor::brakeMode::brake);
+    rightDrive.setBrakeMode(AbstractMotor::brakeMode::brake);
+	Right();
+	
 	leftDrive.setBrakeMode(AbstractMotor::brakeMode::coast);
 	rightDrive.setBrakeMode(AbstractMotor::brakeMode::coast);
 
@@ -95,7 +99,7 @@ void opcontrol() {
 			isBack = false;
 			pros::delay(200);
 		}
-		if (rotation_sensor.get() >= 300 && halfShot) {
+		if (rotation_sensor.get() >= 450 && halfShot) {
 			winchGroup.moveVoltage(1200);
 			halfShot = false;
 		}

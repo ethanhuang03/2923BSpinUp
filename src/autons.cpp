@@ -9,6 +9,7 @@ void winch_checker(){
 }
 
 void shoot(int angle) {
+	rotation_sensor.reset();
 	winchGroup.moveVoltage(-12000);
 	while (rotation_sensor.get() < angle) {
 		pros::delay(20);
@@ -22,6 +23,7 @@ void shoot(int angle) {
 }
 
 void Left(){
+	/*
 	// do roller
 	pros::Task winch_task(winch_checker);
 	intake_roller.moveVoltage(12000);
@@ -64,40 +66,43 @@ void Left(){
 	pros::delay(200);
 	PTO1.toggle();
 	// finish with robot approx near the center with winch up
+	*/
 }
 
 void Right(){
 	pros::Task winch_task(winch_checker);
 	intake_roller.moveVoltage(12000);
-	pros::delay(1600);
-	moveDistance(3_ft, 1_s);
+	pros::delay(1300);
+	moveDistance(2_ft, 1_s);
+	pros::delay(300);
+	moveDistance(1_ft, 1_s);
 	turnToAngle(25_deg);
+	pros::delay(300);
 	intake_roller.moveVoltage(0);
-	moveDistance(0.5_ft, 1_s);
 	PTO1.toggle();
 	pros::delay(200);
 	PTO1.toggle();
 	pros::Task winch_task1(winch_checker);
-	pros::delay(1600);
-	// grab the next disc and come back
+	pros::delay(1000); // can reduce time?
+	
 	intake_roller.moveVoltage(12000);
-	turnToAngle(45_deg);
-	moveDistance(0.75_ft, 1_s);
-	pros::delay(200);
-	moveDistance(-1.5_ft, 1_s);
+	moveDistance(-0.5_ft, 1_s);
 	turnToAngle(-45_deg);
 	// start intaking 2nd and 3rd disc
-	moveDistance(3_ft, 1_s);
-	// turn towards goal, move forward + shoot
-	turnToAngle(45_deg);
+	moveDistance(2_ft, 1_s);
 	moveDistance(1_ft, 1_s);
-	PTO1.toggle();
-	pros::delay(200);
-	PTO1.toggle();
+	pros::delay(300);
+	// turn towards goal + shoot
+	turnToAngle(43_deg);
+	shoot(20);
 	// finish with winch at the top and at the center
+	turnToAngle(135_deg);
+	moveTimeHeadingCorrect(100, 3_s);
+
 }
 
 void Skills() {
+	/*
 	// starting on left rollers
 	// spin roller
 	pros::Task winch_task(winch_checker);
@@ -147,6 +152,7 @@ void Skills() {
 	// turn around and get edge disc
 	turnToAngle(45_deg);
 	moveDistance(1_ft, 2_s);
+	*/
 }
 
 void AWP(){}
