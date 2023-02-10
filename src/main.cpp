@@ -1,7 +1,6 @@
 #include "main.h"
 
 // Global Variables
-const double DEADBAND = 0.0500;
 bool isPTO = false; // false is able to winch
 bool PTOenabled = true;
 bool isBack = false;
@@ -40,18 +39,11 @@ void autonomous() {
 	} else if (selector::auton == 2) {
 		Right();
 	} else if (selector::auton == 3) {
-		LeftAWP();
-	} else if (selector::auton == 4) {
-		RightAWP();
-	}
-
+		AWP();
+	} 
 }
 
 void opcontrol() {
-	
-	leftDrive.setBrakeMode(AbstractMotor::brakeMode::brake);
-    rightDrive.setBrakeMode(AbstractMotor::brakeMode::brake);
-	Right();
 	
 	leftDrive.setBrakeMode(AbstractMotor::brakeMode::coast);
 	rightDrive.setBrakeMode(AbstractMotor::brakeMode::coast);
@@ -94,12 +86,13 @@ void opcontrol() {
 			winchGroup.moveVoltage(12000);
 		} 
 		else if (master.getDigital(ControllerDigital::L1) && !isPTO && isBack) { // Unwinch
+			rotation_sensor.reset();
 			halfShot = true;
-			winchGroup.moveVoltage(-12000);
+			winchGroup.moveVoltage(-6000);
 			isBack = false;
 			pros::delay(200);
 		}
-		if (rotation_sensor.get() >= 450 && halfShot) {
+		if (rotation_sensor.get() >= 20 && halfShot) {
 			winchGroup.moveVoltage(1200);
 			halfShot = false;
 		}
@@ -125,7 +118,7 @@ void opcontrol() {
 		}
 		
 		// Drive
-		chassis->getModel()->curvature(master.getAnalog(ControllerAnalog::leftY), master.getAnalog(ControllerAnalog::rightX), DEADBAND);
+		chassis->getModel()->tank(master.getAnalog(ControllerAnalog::leftY), master.getAnalog(ControllerAnalog::rightY));
 		pros::delay(20);
 	}
 }

@@ -23,50 +23,22 @@ void shoot(int angle) {
 }
 
 void Left(){
-	/*
-	// do roller
-	pros::Task winch_task(winch_checker);
-	intake_roller.moveVoltage(12000);
-	pros::delay(200);
-	// move away and get the 1 disc in the middle
-	moveDistance(1_ft, 1_s);
-	turnToAngle(-45_deg);
-	moveDistance(1.5_ft, 1_s);
-	pros::delay(200);
-	// move back, turn and shoot
-	intake_roller.moveVoltage(0);
-	moveDistance(-1_ft, 1_s);
-	turnToAngle(-5_deg);
-	moveDistance(1_ft, 1_s);
-	PTO1.toggle();
-	pros::delay(200);
-	PTO1.toggle();
-	pros::Task winch_task(winch_checker);
-	// turn towards 3 stack and prepare to intake
-	turnToAngle(70_deg);
-	moveDistance(2_ft, 1_s);
-	// wait until fully winched
-	pros::delay(1000);
-	// move forward and outtake to push the top discs
+	pros::Task winch_task2(winch_checker);
 	intake_roller.moveVoltage(-12000);
-	moveDistance(1_ft, 1_s);
-	// now intake and move forward to intake all
+	moveTime(std::make_pair(100, 100), 300_ms);
+	intake_roller.moveVoltage(0);
+	moveDistance(-0.6_ft, 1_s);
+	turnToAngle(-129_deg);
+	intake_roller.moveVoltage(-12000);
+	moveDistance(2.5_ft, 1_s);
 	intake_roller.moveVoltage(12000);
+	pros::delay(300);
 	moveDistance(1_ft, 1_s);
-	// small delay to decrease speed (maybe not necessary)
-	pros::delay(200);
-	moveDistance(1_ft, 1_s);
-	// turn and drive towards goal
-	turnToAngle(-40_deg);
+	pros::delay(300);
 	moveDistance(1.5_ft, 1_s);
-	// potentially need to reangle
-	
-	// shoot
-	PTO1.toggle();
-	pros::delay(200);
-	PTO1.toggle();
-	// finish with robot approx near the center with winch up
-	*/
+	turnToAngle(-217_deg);
+	moveDistance(0.8_ft, 1_s);
+	shoot(0);
 }
 
 void Right(){
@@ -83,7 +55,6 @@ void Right(){
 	pros::delay(200);
 	PTO1.toggle();
 	pros::Task winch_task1(winch_checker);
-	pros::delay(1000); // can reduce time?
 	
 	intake_roller.moveVoltage(12000);
 	moveDistance(-0.5_ft, 1_s);
@@ -94,11 +65,14 @@ void Right(){
 	pros::delay(300);
 	// turn towards goal + shoot
 	turnToAngle(43_deg);
-	shoot(20);
+	shoot(0);
 	// finish with winch at the top and at the center
-	turnToAngle(135_deg);
-	moveTimeHeadingCorrect(100, 3_s);
-
+	turnToAngle(140_deg);
+	intake_roller.moveVoltage(0);
+	moveTime(std::make_pair(100, 100), 2_s);
+	intake_roller.moveVoltage(-12000);
+	pros::delay(300);
+	intake_roller.moveVoltage(0);
 }
 
 void Skills() {
@@ -156,7 +130,3 @@ void Skills() {
 }
 
 void AWP(){}
-
-void LeftAWP(){}
-
-void RightAWP(){}
