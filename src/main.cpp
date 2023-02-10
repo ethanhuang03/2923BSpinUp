@@ -51,15 +51,15 @@ void opcontrol() {
 	while (true) {
 		// PTO Warning
 		// Display how many shots left and when numnber of shots is 0, disable PTO
-		std::string display = "PTO Shots Left: "+ PTOCount;
+		master.clear();
+		std::string display = "Shots Left: "+ PTOCount;
 		master.setText(0, 0, display);
 		if (PTOCount < 10 && PTOCount > 0){
 			master.rumble("----");
-			master.setText(1, 0, "PTO Shots Low");
+			master.setText(1, 0, "Low");
 		}
 		else if (PTOCount == 0){
-			master.clear();
-			master.setText(0, 0, "PTO Shots Empty");
+			master.setText(0, 0, "Empty");
 			PTOenabled = false;
 		}
 		if (!PTOenabled && master.getDigital(ControllerDigital::Y)){ // Override Function because why not?
