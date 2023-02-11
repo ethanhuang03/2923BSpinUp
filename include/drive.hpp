@@ -30,4 +30,4 @@ void moveDistance(QLength target, QTime time = 2_min);
  * 
  * @param targetAngle - the target odometry global angle to turn to, normalized to [-pi, pi]
  */
-void turnToAngle(QAngle targetAngle);
+void turnToAngle(QAngle targetAngle, QTime time = 2_min);

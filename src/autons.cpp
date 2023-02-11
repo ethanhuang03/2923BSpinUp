@@ -51,9 +51,12 @@ void Right(){
 	turnToAngle(25_deg);
 	pros::delay(300);
 	intake_roller.moveVoltage(0);
+	/*
 	PTO1.toggle();
 	pros::delay(200);
 	PTO1.toggle();
+	*/
+	shoot(0);
 	pros::Task winch_task1(winch_checker);
 	
 	intake_roller.moveVoltage(12000);

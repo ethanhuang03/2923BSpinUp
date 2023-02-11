@@ -49,6 +49,7 @@ void opcontrol() {
 	rightDrive.setBrakeMode(AbstractMotor::brakeMode::coast);
 
 	while (true) {
+		/*
 		// PTO Warning
 		// Display how many shots left and when numnber of shots is 0, disable PTO
 		master.clear();
@@ -65,7 +66,7 @@ void opcontrol() {
 		if (!PTOenabled && master.getDigital(ControllerDigital::Y)){ // Override Function because why not?
 			PTOenabled = true;
 		}
-
+		*/
 		// Expansion
 		if (master.getDigital(ControllerDigital::X)){ // X for Xpansion
 			expansion.toggle();
@@ -80,6 +81,8 @@ void opcontrol() {
 			winchGroup.setBrakeMode(AbstractMotor::brakeMode::coast);
 			isBack = false;
 			pros::delay(200);
+			PTO();
+			winchGroup.moveVoltage(12000);
 		}
 		else if (master.getDigital(ControllerDigital::L2) && !isPTO) { // Winch
 			winchGroup.setBrakeMode(AbstractMotor::brakeMode::hold);
@@ -90,9 +93,9 @@ void opcontrol() {
 			halfShot = true;
 			winchGroup.moveVoltage(-6000);
 			isBack = false;
-			pros::delay(200);
+			pros::delay(300);
 		}
-		if (rotation_sensor.get() >= 20 && halfShot) {
+		if (rotation_sensor.get() >= 400 && halfShot) {
 			winchGroup.moveVoltage(1200);
 			halfShot = false;
 		}
@@ -106,7 +109,7 @@ void opcontrol() {
 		
 
 		// Intake
-		if (master.getDigital(ControllerDigital::R1) && master.getDigital(ControllerDigital::R2) || limit_switch.get_value() == 0) {
+		if (master.getDigital(ControllerDigital::R1) && master.getDigital(ControllerDigital::R2)) {
 			intake_roller.moveVoltage(0);
 			pros::delay(200);
 		}
@@ -120,5 +123,6 @@ void opcontrol() {
 		// Drive
 		chassis->getModel()->tank(master.getAnalog(ControllerAnalog::leftY), master.getAnalog(ControllerAnalog::rightY));
 		pros::delay(20);
+
 	}
 }
