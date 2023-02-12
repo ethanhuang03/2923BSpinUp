@@ -22,7 +22,8 @@ void PTO() {
 void initialize() {
 	imu.calibrate();
 	selector::init();
-	
+    pros::vision_signature_s_t RED_SIG = pros::Vision::signature_from_utility(1, 5685, 8135, 6910, -1963, -1705, -1834, 4.000, 0);
+    vision_sensor.set_signature(1, &RED_SIG);
 }
 
 void disabled() {}
@@ -39,7 +40,7 @@ void autonomous() {
 	} else if (selector::auton == 2) {
 		Right();
 	} else if (selector::auton == 3) {
-		AWP();
+		Skills();
 	} 
 }
 

@@ -53,3 +53,12 @@ void turnToAngle(QAngle targetAngle, QTime time){
 
     (chassis->getModel())->stop();
 }
+
+void turnToMogo() {
+    do {
+        pros::vision_object_s_t rtn = vision_sensor.get_by_size(0);
+        (chassis->getModel())->arcade(0, visionPID->step(-rtn.x_middle_coord));
+		pros::delay(10);
+	} while(!visionPID->isSettled());
+	(chassis->getModel())->stop();
+}

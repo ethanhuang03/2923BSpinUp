@@ -24,6 +24,7 @@ MotorGroup winchGroup({left_winch, right_winch, middle_winch});
 IMU imu(19);
 RotationSensor rotation_sensor(20);
 pros::ADIDigitalIn limit_switch(3);
+pros::Vision vision_sensor (1, pros::E_VISION_ZERO_CENTER);
 
 // Pneumatics
 Pneumatics PTO1(1, true);
@@ -39,5 +40,5 @@ std::shared_ptr<ChassisController> chassis = ChassisControllerBuilder()
 std::shared_ptr<IterativePosPIDController> turnPID = std::make_shared<IterativePosPIDController>(0.064011, 0.001, 0.003096, 0, TimeUtilFactory::withSettledUtilParams(2, 2, 200_ms));
 std::shared_ptr<IterativePosPIDController> movePID = std::make_shared<IterativePosPIDController>(0.12, 0.0, 0.002, 0, TimeUtilFactory::withSettledUtilParams(2, 2, 100_ms));
 std::shared_ptr<IterativePosPIDController> headingPID = std::make_shared<IterativePosPIDController>(0.2, 0, 0.0022453, 0, TimeUtilFactory::createDefault());
-
+std::shared_ptr<IterativePosPIDController> visionPID = std::make_shared<IterativePosPIDController>(0.01, 0.0, 0.0002, 0, TimeUtilFactory::withSettledUtilParams(5, 2, 100_ms));
 

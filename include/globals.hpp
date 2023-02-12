@@ -25,6 +25,7 @@ extern MotorGroup winchGroup;
 extern IMU imu;
 extern RotationSensor rotation_sensor;
 extern pros::ADIDigitalIn limit_switch;
+extern pros::Vision vision_sensor;
 
 // Pneumatics
 extern Pneumatics PTO1;
@@ -38,3 +39,4 @@ extern std::shared_ptr<ChassisController> chassis;
 extern std::shared_ptr<IterativePosPIDController> turnPID;
 extern std::shared_ptr<IterativePosPIDController> movePID;
 extern std::shared_ptr<IterativePosPIDController> headingPID;
+extern std::shared_ptr<IterativePosPIDController> visionPID;

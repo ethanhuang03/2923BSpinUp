@@ -79,6 +79,65 @@ void Right(){
 }
 
 void Skills() {
+	pros::Task winch_task(winch_checker);
+	intake_roller.moveVoltage(-12000);
+	moveTime(std::make_pair(100, 100), 300_ms);
+	pros::delay(100);
+	intake_roller.moveVoltage(0);
+	moveDistance(-0.6_ft, 1_s);
+	intake_roller.moveVoltage(12000);
+	turnToAngle(125_deg, 1_s);
+	moveDistance(2_ft, 1_s);
+	turnToAngle(90_deg, 1_s);
+	
+	intake_roller.moveVoltage(-12000);
+	moveTime(std::make_pair(100, 100), 0.5_s);
+	pros::delay(400);
+	intake_roller.moveVoltage(0);
+	moveDistance(-0.5_ft, 1_s);
+
+	turnToAngle(190_deg, 1_s);
+	moveDistance(1.6_ft, 1_s);
+	turnToAngle(175_deg, 1_s);
+	//shoot(0);
+	pros::delay(500);
+	turnToAngle(225_deg, 1_s);
+	intake_roller.moveVoltage(12000);
+
+	moveDistance(2.5_ft, 1_s);
+	moveDistance(2_ft, 1_s);
+
+	turnToAngle(135_deg, 1_s);
+	shoot(300);
+	pros::delay(1000);
+
+	turnToAngle(217_deg, 1_s);
+	intake_roller.moveVoltage(-12000);
+	moveDistance(2.3_ft, 1_s);
+	moveTime(std::make_pair(10, 10), 0.3_s);
+	intake_roller.moveVoltage(12000);
+	turnToAngle(220_deg, 1_s);
+	pros::delay(500);
+	moveDistance(1_ft, 1_s);
+	pros::delay(300);
+	moveDistance(1_ft, 1_s);
+	pros::delay(300);
+
+	turnToAngle(87_deg, 1_s);
+	shoot(0);
+	pros::delay(1000);
+
+	moveDistance(-0.6_ft, 1_s);
+	turnToAngle(183_deg, 1_s);
+	moveDistance(0.7_ft, 1_s);
+	intake_roller.moveVoltage(-12000);
+	moveTimeHeadingCorrect(100, 300_ms);
+	pros::delay(100);
+	intake_roller.moveVoltage(0);
+	moveDistance(-0.6_ft, 1_s);
+
+
+
 	/*
 	// starting on left rollers
 	// spin roller
@@ -132,4 +191,6 @@ void Skills() {
 	*/
 }
 
-void AWP(){}
+void AWP(){
+	
+}
