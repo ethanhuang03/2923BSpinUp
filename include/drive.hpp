@@ -23,7 +23,7 @@ void moveTimeHeadingCorrect(double speed, QTime time);
  * @param target desired location
  * @param time maximum time to run before ending the loop, defaulted to infinite
  */
-void moveDistance(QLength target, QTime time = 2_min);
+void moveDistance(QLength target, QTime time = 2_min, double max_speed = 100);
 
 /**
  * @brief Turns the robot to the desired global angle (using closed-loop control)
@@ -31,3 +31,9 @@ void moveDistance(QLength target, QTime time = 2_min);
  * @param targetAngle - the target odometry global angle to turn to, normalized to [-pi, pi]
  */
 void turnToAngle(QAngle targetAngle, QTime time = 2_min);
+
+/**
+ * @brief Turns the robot to the goal using vision
+ * 
+ */
+void turnToGoal();

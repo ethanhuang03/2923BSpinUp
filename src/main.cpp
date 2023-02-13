@@ -22,8 +22,10 @@ void PTO() {
 void initialize() {
 	imu.calibrate();
 	selector::init();
-    pros::vision_signature_s_t RED_SIG = pros::Vision::signature_from_utility(1, 5685, 8135, 6910, -1963, -1705, -1834, 4.000, 0);
+    pros::vision_signature_s_t RED_SIG = pros::Vision::signature_from_utility(1, 8313, 12919, 10616, -2185, -343, -1264, 3.000, 0);
+	pros::vision_signature_s_t BLUE_SIG = pros::Vision::signature_from_utility(2, -2341, -1281, -1811, 6097, 8227, 7162, 3.600, 0);
     vision_sensor.set_signature(1, &RED_SIG);
+	vision_sensor.set_signature(2, &BLUE_SIG);
 }
 
 void disabled() {}
@@ -45,10 +47,9 @@ void autonomous() {
 }
 
 void opcontrol() {
+	leftDrive.setBrakeMode(AbstractMotor::brakeMode::brake);
+    rightDrive.setBrakeMode(AbstractMotor::brakeMode::brake);
 	
-	leftDrive.setBrakeMode(AbstractMotor::brakeMode::coast);
-	rightDrive.setBrakeMode(AbstractMotor::brakeMode::coast);
-
 	while (true) {
 		/*
 		// PTO Warning
@@ -107,7 +108,9 @@ void opcontrol() {
 		}
 		
 
-		
+		if (master.getDigital(ControllerDigital::up)) { // Aim Bot"?
+			turnToGoal();
+		}
 
 		// Intake
 		if (master.getDigital(ControllerDigital::R1) && master.getDigital(ControllerDigital::R2)) {
