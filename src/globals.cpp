@@ -1,7 +1,8 @@
 #include "main.h"
 
 // Controller
-Controller master(ControllerId::master); 
+Controller master(ControllerId::master);
+Controller partner(ControllerId::partner);
 
 // Motors
 Motor leftBack(11, true, AbstractMotor::gearset::green, AbstractMotor::encoderUnits::degrees); 

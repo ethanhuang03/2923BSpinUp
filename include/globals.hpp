@@ -2,7 +2,8 @@
 #include "main.h"
 
 // Controller
-extern Controller master; 
+extern Controller master;
+extern Controller partner;
 
 // Motors
 extern Motor leftBack; 

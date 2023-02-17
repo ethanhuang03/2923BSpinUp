@@ -47,9 +47,9 @@ void autonomous() {
 }
 
 void opcontrol() {
-	leftDrive.setBrakeMode(AbstractMotor::brakeMode::brake);
-    rightDrive.setBrakeMode(AbstractMotor::brakeMode::brake);
-	
+	leftDrive.setBrakeMode(AbstractMotor::brakeMode::coast);
+    rightDrive.setBrakeMode(AbstractMotor::brakeMode::coast);
+
 	while (true) {
 		/*
 		// PTO Warning
@@ -97,7 +97,7 @@ void opcontrol() {
 			isBack = false;
 			pros::delay(300);
 		}
-		if (rotation_sensor.get() >= 400 && halfShot) {
+		if (rotation_sensor.get() >= 450 && halfShot) {
 			winchGroup.moveVoltage(1200);
 			halfShot = false;
 		}
@@ -113,14 +113,14 @@ void opcontrol() {
 		}
 
 		// Intake
-		if (master.getDigital(ControllerDigital::R1) && master.getDigital(ControllerDigital::R2)) {
+		if ((master.getDigital(ControllerDigital::R1) && master.getDigital(ControllerDigital::R2)) || (partner.getDigital(ControllerDigital::R1) && partner.getDigital(ControllerDigital::R2))) {
 			intake_roller.moveVoltage(0);
 			pros::delay(200);
 		}
-		else if (master.getDigital(ControllerDigital::R2) && limit_switch.get_value() == 1) {
+		else if ((master.getDigital(ControllerDigital::R2) && limit_switch.get_value() == 1) || (partner.getDigital(ControllerDigital::R2) && limit_switch.get_value() == 1)) {
 			intake_roller.moveVoltage(12000);
 		}
-		else if (master.getDigital(ControllerDigital::R1)) {
+		else if (master.getDigital(ControllerDigital::R1) || partner.getDigital(ControllerDigital::R1)) {
 			intake_roller.moveVoltage(-12000);
 		}
 		
