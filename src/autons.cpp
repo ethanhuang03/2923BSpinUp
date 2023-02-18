@@ -31,11 +31,12 @@ void triple_stack() {
 }
 
 void Left(){
-	pros::Task winch_task2(winch_checker);
+	//pros::Task winch_task2(winch_checker);
 	intake_roller.moveVoltage(-12000);
 	moveTime(std::make_pair(100, 100), 300_ms);
 	intake_roller.moveVoltage(0);
 	moveDistance(-0.6_ft, 1_s);
+	/*
 	turnToAngle(-129_deg);
 	intake_roller.moveVoltage(-12000);
 	moveDistance(2.5_ft, 1_s);
@@ -47,16 +48,17 @@ void Left(){
 	turnToAngle(-217_deg);
 	moveDistance(0.8_ft, 1_s);
 	shoot(0);
+	*/
 }
 
 void Right(){
 	pros::Task winch_task(winch_checker);
 	intake_roller.moveVoltage(12000);
 	pros::delay(2000);
-	moveDistance(2_ft, 1_s, 80);
+	moveDistance(1.8_ft, 1_s, 80);
 	pros::delay(300);
-	moveDistance(1_ft, 1_s);
-	turnToAngle(25_deg);
+	moveDistance(0.8_ft, 1_s);
+	turnToAngle(21_deg, 1_s);
 	pros::delay(300);
 	intake_roller.moveVoltage(0);
 	/*
@@ -69,14 +71,15 @@ void Right(){
 	
 	intake_roller.moveVoltage(12000);
 	moveDistance(-0.5_ft, 1_s);
-	turnToAngle(-45_deg);
+	turnToAngle(-45_deg, 1_s);
 	pros::delay(1000);
 	// start intaking 2nd and 3rd disc
+	moveDistance(2_ft, 1.5_s, 80);
 	moveDistance(2_ft, 1_s, 80);
-	moveDistance(1_ft, 1_s, 80);
 	pros::delay(300);
 	// turn towards goal + shoot
-	turnToAngle(46_deg, 1_s);
+	turnToAngle(45_deg, 1_s);
+	moveDistance(0.5_ft, 1_s, 100);
 	shoot(10);
 	// finish with winch at the top and at the center
 	turnToAngle(137_deg);

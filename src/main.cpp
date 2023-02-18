@@ -6,6 +6,7 @@ bool PTOenabled = true;
 bool isBack = false;
 bool halfShot = false;
 int PTOCount = 32;
+int target;
 
 // Utility Functions
 void PTO() {
@@ -49,26 +50,8 @@ void autonomous() {
 void opcontrol() {
 	leftDrive.setBrakeMode(AbstractMotor::brakeMode::coast);
     rightDrive.setBrakeMode(AbstractMotor::brakeMode::coast);
-
+	
 	while (true) {
-		/*
-		// PTO Warning
-		// Display how many shots left and when numnber of shots is 0, disable PTO
-		master.clear();
-		std::string display = "Shots Left: "+ PTOCount;
-		master.setText(0, 0, display);
-		if (PTOCount < 10 && PTOCount > 0){
-			master.rumble("----");
-			master.setText(1, 0, "Low");
-		}
-		else if (PTOCount == 0){
-			master.setText(0, 0, "Empty");
-			PTOenabled = false;
-		}
-		if (!PTOenabled && master.getDigital(ControllerDigital::Y)){ // Override Function because why not?
-			PTOenabled = true;
-		}
-		*/
 		// Expansion
 		if (master.getDigital(ControllerDigital::X)){ // X for Xpansion
 			expansion.toggle();
@@ -91,19 +74,18 @@ void opcontrol() {
 			winchGroup.moveVoltage(12000);
 		} 
 		else if (master.getDigital(ControllerDigital::L1) && !isPTO && isBack) { // Unwinch
-			rotation_sensor.reset();
+			target = rotation_sensor.get() + 160;
 			halfShot = true;
 			winchGroup.moveVoltage(-6000);
 			isBack = false;
 			pros::delay(300);
 		}
-		if (rotation_sensor.get() >= 450 && halfShot) {
+		if (rotation_sensor.get() >= target && halfShot) {
 			winchGroup.moveVoltage(1200);
 			halfShot = false;
 		}
 		if (limit_switch.get_value() == 1 && !isBack) {
 			winchGroup.moveVoltage(1200);
-			rotation_sensor.reset();
 			isBack = true;
 		}
 		
@@ -113,17 +95,28 @@ void opcontrol() {
 		}
 
 		// Intake
-		if ((master.getDigital(ControllerDigital::R1) && master.getDigital(ControllerDigital::R2)) || (partner.getDigital(ControllerDigital::R1) && partner.getDigital(ControllerDigital::R2))) {
+		if ((master.getDigital(ControllerDigital::R1) && master.getDigital(ControllerDigital::R2))) {
 			intake_roller.moveVoltage(0);
 			pros::delay(200);
 		}
-		else if ((master.getDigital(ControllerDigital::R2) && limit_switch.get_value() == 1) || (partner.getDigital(ControllerDigital::R2) && limit_switch.get_value() == 1)) {
+		else if ((master.getDigital(ControllerDigital::R2) && limit_switch.get_value() == 1)) {
 			intake_roller.moveVoltage(12000);
 		}
-		else if (master.getDigital(ControllerDigital::R1) || partner.getDigital(ControllerDigital::R1)) {
+		else if (master.getDigital(ControllerDigital::R1)) {
 			intake_roller.moveVoltage(-12000);
 		}
-		
+		// Intake
+		if ((partner.getDigital(ControllerDigital::R1) && partner.getDigital(ControllerDigital::R2))) {
+			intake_roller.moveVoltage(0);
+			pros::delay(200);
+		}
+		else if ((partner.getDigital(ControllerDigital::R2) && limit_switch.get_value() == 1)) {
+			intake_roller.moveVoltage(12000);
+		}
+		else if (partner.getDigital(ControllerDigital::R1)) {
+			intake_roller.moveVoltage(-12000);
+		}
+
 		// Drive
 		chassis->getModel()->tank(master.getAnalog(ControllerAnalog::leftY), master.getAnalog(ControllerAnalog::rightY));
 		pros::delay(20);
