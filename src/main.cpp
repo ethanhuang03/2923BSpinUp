@@ -74,7 +74,7 @@ void opcontrol() {
 			winchGroup.moveVoltage(12000);
 		} 
 		else if (master.getDigital(ControllerDigital::L1) && !isPTO && isBack) { // Unwinch
-			target = rotation_sensor.get() + 160;
+			target = rotation_sensor.get() + 200;
 			halfShot = true;
 			winchGroup.moveVoltage(-6000);
 			isBack = false;

@@ -8,10 +8,10 @@ void winch_checker(){
 	winchGroup.moveVoltage(1200);
 }
 
-void shoot(int angle) {
+void shoot(double angle) {
 	double current_angle = rotation_sensor.get();
-	winchGroup.moveVoltage(-12000);
 	while (rotation_sensor.get() < current_angle+angle) {
+		winchGroup.moveVoltage(-12000);
 		pros::delay(20);
 	}
 	winchGroup.moveVoltage(1200);
@@ -24,10 +24,10 @@ void shoot(int angle) {
 
 void triple_stack() {
 	intake_roller.moveVoltage(-12000);
-	moveDistance(0.6_ft, 1_s, 50);
+	moveDistance(0.9_ft, 1_s, 50);
 	intake_roller.moveVoltage(12000);
 	pros::delay(300);
-	moveDistance(1.9_ft, 5_s, 13);
+	moveDistance(1.9_ft, 5_s, 40);
 }
 
 void Left(){
@@ -58,17 +58,23 @@ void Right(){
 	moveDistance(1.8_ft, 1_s, 80);
 	pros::delay(300);
 	moveDistance(0.8_ft, 1_s);
-	turnToAngle(21_deg, 1_s);
+	turnToAngle(22_deg, 1_s);
 	pros::delay(300);
 	intake_roller.moveVoltage(0);
-	/*
-	PTO1.toggle();
-	pros::delay(200);
-	PTO1.toggle();
-	*/
-	shoot(0);
+	shoot(10);
 	pros::Task winch_task1(winch_checker);
+
+	intake_roller.moveVoltage(-12000);
+	turnToAngle(150_deg, 1_s);
+	moveDistance(3.5_ft, 1_s);
+	turnToAngle(179_deg, 1_s);
+	moveTime(std::make_pair(100, 100), 0.3_s);
+	pros::delay(400);
+	intake_roller.moveVoltage(0);
+	moveDistance(-0.5_ft, 1_s);
 	
+	
+	/*
 	intake_roller.moveVoltage(12000);
 	moveDistance(-0.5_ft, 1_s);
 	turnToAngle(-45_deg, 1_s);
@@ -88,10 +94,83 @@ void Right(){
 	intake_roller.moveVoltage(-12000);
 	pros::delay(300);
 	intake_roller.moveVoltage(0);
+	*/
 }
 
 void Skills() {
+	// First Stage
+	//pros::Task winch_task(winch_checker);
+	intake_roller.moveVoltage(12000);
+	pros::delay(1600);
+	turnToAngle(34_deg, 1_s);
+	moveDistance(2_ft, 1_s);
+	moveDistance(0.5_ft, 1_s);
+	turnToAngle(90_deg, 1_s);
+	moveDistance(1.2_ft, 1_s);
+	turnToAngle(90_deg, 1_s);
+	shoot(55);
+	pros::delay(1600);
+
+	// Secnod Stage
+	turnToAngle(135_deg, 1_s);
+	moveDistance(2_ft, 1_s);
+	turnToAngle(135_deg, 1_s);
+	moveDistance(1.5_ft, 1_s);
+	turnToAngle(135_deg, 1_s);
+	moveDistance(1.8_ft, 1_s);
+	pros::delay(500);
+	turnToAngle(42_deg, 1_s);
+	shoot(140);
+	pros::delay(1600);
+
+	// Third Stage
+	turnToAngle(-132_deg, 1_s);
+	moveDistance(2_ft, 1_s);
+	turnToAngle(-135_deg, 1_s);
+	moveDistance(1.4_ft, 1_s);
+	pros::delay(300);
+	turnToAngle(137_deg, 1_s);
+	moveDistance(1.5_ft, 1_s);
+	turnToAngle(137_deg, 1_s);
+	moveDistance(2_ft, 1_s);
+	pros::delay(500);
+	turnToAngle(-105.5_deg, 1_s);
+	shoot(0);
+	pros::delay(1600);
+
+	// Fourth Stage
+	turnToAngle(135_deg, 1_s);
+	moveDistance(1.6_ft, 1_s);
+	turnToAngle(45_deg, 1_s);
+	intake_roller.moveVoltage(-12000);
+	moveDistance(1.2_ft, 1_s);
+	intake_roller.moveVoltage(12000);
+	pros::delay(300);
+	moveDistance(2_ft, 5_s, 20);
+	turnToAngle(1_deg, 1_s);
+	shoot(0);
+	pros::delay(1600);
+
+	// Fifth Stage
+	turnToAngle(-41_deg, 1_s);
+	intake_roller.moveVoltage(-12000);
+	moveDistance(1.5_ft, 1_s);	
+	intake_roller.moveVoltage(12000);
+	pros::delay(300);
+	moveDistance(2_ft, 5_s, 20);
+	pros::delay(300);
+	turnToAngle(38_deg, 1_s);
+	shoot(0);
+	pros::delay(1600);
+
+	// Sixth Stage
+	turnToAngle(-136_deg, 1_s);
+	moveDistance(12_ft, 1_s);
+	pros::delay(300);
+	turnToAngle(-45_deg, 1_s);
 	
+
+	/*
 	// First Roller
 	pros::Task winch_task(winch_checker);
 	intake_roller.moveVoltage(-12000);
@@ -102,7 +181,7 @@ void Skills() {
 	intake_roller.moveVoltage(12000);
 	turnToAngle(110_deg, 1_s);
 	pros::delay(800);
-	moveDistance(1.6_ft, 4_s, 75);
+	moveDistance(1.6_ft, 2_s);
 	pros::delay(300);
 	turnToAngle(90_deg, 1_s);
 	
@@ -117,20 +196,19 @@ void Skills() {
 
 	// Move To Align and Shoot
 	turnToAngle(190_deg, 1_s);
-	moveDistance(1.7_ft, 1_s);
+	moveDistance(2.2_ft, 1_s);
 	turnToAngle(171_deg, 1_s);
 	//TUNE
 	shoot(55);
 	pros::delay(1600);
 
-	
 	// Get Single 3 Disks and Shoot
 	turnToAngle(215_deg, 1_s);
-	moveDistance(1.5_ft, 1.5_s, 80);
+	moveDistance(1.5_ft, 1.5_s);
 	turnToAngle(225_deg, 1_s);
-	moveDistance(1.5_ft, 1.5_s, 80);
+	moveDistance(1.5_ft, 1.5_s);
 	turnToAngle(225_deg, 1_s);
-	moveDistance(1.5_ft, 1.5_s, 80);
+	moveDistance(1.5_ft, 1.5_s);
 	pros::delay(500);
 	turnToAngle(129_deg, 1_s);
 	//TUNE
@@ -158,7 +236,7 @@ void Skills() {
 	intake_roller.moveVoltage(12000);
 	moveDistance(1.5_ft, 1_s);
 	turnToAngle(-70_deg, 1_s);
-	moveDistance(2_ft, 2_s, 50);
+	moveDistance(2_ft, 2_s);
 	pros::delay(300);
 	turnToAngle(-90_deg, 1_s);
 	pros::delay(200);
@@ -206,9 +284,7 @@ void Skills() {
 	moveDistance(3_ft, 2_s);
 	turnToAngle(-135_deg, 1_s);
 	// expansion.toggle();
-	
-
-	
+	*/
 }
 
 void AWP(){
